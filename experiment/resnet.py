@@ -9,9 +9,9 @@ from keras.layers import (
     Flatten
 )
 from keras.layers.convolutional import (
-    Conv1D,
-    MaxPooling1D,
-    AveragePooling1D
+    Conv2D,
+    MaxPooling2D,
+    AveragePooling2D
 )
 from keras.layers.merge import add
 from keras.layers.normalization import BatchNormalization
@@ -31,15 +31,13 @@ def _conv_bn_relu(**conv_params):
     """
     filters = conv_params["filters"]
     kernel_size = conv_params["kernel_size"]
-    strides = conv_params.setdefault("strides", 1)
-    kernel_initializer = conv_params.setdefault(
-        "kernel_initializer", "he_normal")
+    strides = conv_params.setdefault("strides", (1, 1))
+    kernel_initializer = conv_params.setdefault("kernel_initializer", "he_normal")
     padding = conv_params.setdefault("padding", "same")
-    kernel_regularizer = conv_params.setdefault(
-        "kernel_regularizer", l2(1.e-4))
+    kernel_regularizer = conv_params.setdefault("kernel_regularizer", l2(1.e-4))
 
     def f(input):
-        conv = Conv1D(filters=filters, kernel_size=kernel_size,
+        conv = Conv2D(filters=filters, kernel_size=kernel_size,
                       strides=strides, padding=padding,
                       kernel_initializer=kernel_initializer,
                       kernel_regularizer=kernel_regularizer)(input)
@@ -54,16 +52,14 @@ def _bn_relu_conv(**conv_params):
     """
     filters = conv_params["filters"]
     kernel_size = conv_params["kernel_size"]
-    strides = conv_params.setdefault("strides", 1)
-    kernel_initializer = conv_params.setdefault(
-        "kernel_initializer", "he_normal")
+    strides = conv_params.setdefault("strides", (1, 1))
+    kernel_initializer = conv_params.setdefault("kernel_initializer", "he_normal")
     padding = conv_params.setdefault("padding", "same")
-    kernel_regularizer = conv_params.setdefault(
-        "kernel_regularizer", l2(1.e-4))
+    kernel_regularizer = conv_params.setdefault("kernel_regularizer", l2(1.e-4))
 
     def f(input):
         activation = _bn_relu(input)
-        return Conv1D(filters=filters, kernel_size=kernel_size,
+        return Conv2D(filters=filters, kernel_size=kernel_size,
                       strides=strides, padding=padding,
                       kernel_initializer=kernel_initializer,
                       kernel_regularizer=kernel_regularizer)(activation)
@@ -80,15 +76,14 @@ def _shortcut(input, residual):
     input_shape = K.int_shape(input)
     residual_shape = K.int_shape(residual)
     stride_width = int(round(input_shape[ROW_AXIS] / residual_shape[ROW_AXIS]))
-    stride_height = int(
-        round(input_shape[COL_AXIS] / residual_shape[COL_AXIS]))
+    stride_height = int(round(input_shape[COL_AXIS] / residual_shape[COL_AXIS]))
     equal_channels = input_shape[CHANNEL_AXIS] == residual_shape[CHANNEL_AXIS]
 
     shortcut = input
     # 1 X 1 conv if shape is different. Else identity.
     if stride_width > 1 or stride_height > 1 or not equal_channels:
-        shortcut = Conv1D(filters=residual_shape[CHANNEL_AXIS],
-                          kernel_size=1,
+        shortcut = Conv2D(filters=residual_shape[CHANNEL_AXIS],
+                          kernel_size=(1, 1),
                           strides=(stride_width, stride_height),
                           padding="valid",
                           kernel_initializer="he_normal",
@@ -102,9 +97,9 @@ def _residual_block(block_function, filters, repetitions, is_first_layer=False):
     """
     def f(input):
         for i in range(repetitions):
-            init_strides = 1
+            init_strides = (1, 1)
             if i == 0 and not is_first_layer:
-                init_strides = 2
+                init_strides = (2, 2)
             input = block_function(filters=filters, init_strides=init_strides,
                                    is_first_block_of_first_layer=(is_first_layer and i == 0))(input)
         return input
@@ -120,16 +115,16 @@ def basic_block(filters, init_strides=(1, 1), is_first_block_of_first_layer=Fals
 
         if is_first_block_of_first_layer:
             # don't repeat bn->relu since we just did bn->relu->maxpool
-            conv1 = Conv1D(filters=filters, kernel_size=3,
+            conv1 = Conv2D(filters=filters, kernel_size=(3, 3),
                            strides=init_strides,
                            padding="same",
                            kernel_initializer="he_normal",
                            kernel_regularizer=l2(1e-4))(input)
         else:
-            conv1 = _bn_relu_conv(filters=filters, kernel_size=3,
+            conv1 = _bn_relu_conv(filters=filters, kernel_size=(3, 3),
                                   strides=init_strides)(input)
 
-        residual = _bn_relu_conv(filters=filters, kernel_size=3)(conv1)
+        residual = _bn_relu_conv(filters=filters, kernel_size=(3, 3))(conv1)
         return _shortcut(input, residual)
 
     return f
@@ -146,18 +141,17 @@ def bottleneck(filters, init_strides=(1, 1), is_first_block_of_first_layer=False
 
         if is_first_block_of_first_layer:
             # don't repeat bn->relu since we just did bn->relu->maxpool
-            conv_1_1 = Conv1D(filters=filters, kernel_size=1,
+            conv_1_1 = Conv2D(filters=filters, kernel_size=(1, 1),
                               strides=init_strides,
                               padding="same",
                               kernel_initializer="he_normal",
                               kernel_regularizer=l2(1e-4))(input)
         else:
-            conv_1_1 = _bn_relu_conv(filters=filters, kernel_size=1,
+            conv_1_1 = _bn_relu_conv(filters=filters, kernel_size=(1, 1),
                                      strides=init_strides)(input)
 
-        conv_3_3 = _bn_relu_conv(filters=filters, kernel_size=3)(conv_1_1)
-        residual = _bn_relu_conv(
-            filters=filters * 4, kernel_size=1)(conv_3_3)
+        conv_3_3 = _bn_relu_conv(filters=filters, kernel_size=(3, 3))(conv_1_1)
+        residual = _bn_relu_conv(filters=filters * 4, kernel_size=(1, 1))(conv_3_3)
         return _shortcut(input, residual)
 
     return f
@@ -170,11 +164,11 @@ def _handle_dim_ordering():
     if K.image_dim_ordering() == 'tf':
         ROW_AXIS = 1
         COL_AXIS = 2
-        CHANNEL_AXIS = 1
+        CHANNEL_AXIS = 3
     else:
         CHANNEL_AXIS = 1
         ROW_AXIS = 2
-        COL_AXIS = 1
+        COL_AXIS = 3
 
 
 def _get_block(identifier):
@@ -204,8 +198,7 @@ class ResnetBuilder(object):
         """
         _handle_dim_ordering()
         if len(input_shape) != 3:
-            raise Exception(
-                "Input shape should be a tuple (nb_channels, nb_rows, nb_cols)")
+            raise Exception("Input shape should be a tuple (nb_channels, nb_rows, nb_cols)")
 
         # Permute dimension order if necessary
         if K.image_dim_ordering() == 'tf':
@@ -215,16 +208,13 @@ class ResnetBuilder(object):
         block_fn = _get_block(block_fn)
 
         input = Input(shape=input_shape)
-        conv1 = _conv_bn_relu(filters=64, kernel_size=(
-            7), strides=(2))(input)
-        pool1 = MaxPooling1D(pool_size=(3), strides=(
-            2), padding="same")(conv1)
+        conv1 = _conv_bn_relu(filters=64, kernel_size=(7, 7), strides=(2, 2))(input)
+        pool1 = MaxPooling2D(pool_size=(3, 3), strides=(2, 2), padding="same")(conv1)
 
         block = pool1
         filters = 64
         for i, r in enumerate(repetitions):
-            block = _residual_block(
-                block_fn, filters=filters, repetitions=r, is_first_layer=(i == 0))(block)
+            block = _residual_block(block_fn, filters=filters, repetitions=r, is_first_layer=(i == 0))(block)
             filters *= 2
 
         # Last activation
@@ -232,7 +222,7 @@ class ResnetBuilder(object):
 
         # Classifier block
         block_shape = K.int_shape(block)
-        pool2 = AveragePooling1D(pool_size=(block_shape[ROW_AXIS], block_shape[COL_AXIS]),
+        pool2 = AveragePooling2D(pool_size=(block_shape[ROW_AXIS], block_shape[COL_AXIS]),
                                  strides=(1, 1))(block)
         flatten1 = Flatten()(pool2)
         dense = Dense(units=num_outputs, kernel_initializer="he_normal",
