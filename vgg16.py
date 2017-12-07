@@ -47,14 +47,14 @@ img_width, img_height = 48, 48
 top_model_weights_path = 'bottleneck_fc_model.h5'
 train_data_dir = 'data/training'
 validation_data_dir = 'data/validation'
-nb_train_samples = 278
-nb_validation_samples = 82
+nb_train_samples = 272
+nb_validation_samples = 80
 epochs = 50
 batch_size = 16
 
 
 def save_bottlebeck_features():
-    datagen = ImageDataGenerator(rescale=1. / 255)
+    datagen = ImageDataGenerator(rescale=1./255)
 
     # build the VGG16 network
     model = applications.VGG16(include_top=False, weights='imagenet')
@@ -67,8 +67,7 @@ def save_bottlebeck_features():
         shuffle=False)
     bottleneck_features_train = model.predict_generator(
         generator, nb_train_samples // batch_size)
-    np.save(open('bottleneck_features_train.npy', 'w'),
-            bottleneck_features_train)
+    np.save('bottleneck_features_train_vgg16',bottleneck_features_train)
 
     generator = datagen.flow_from_directory(
         validation_data_dir,
@@ -78,18 +77,17 @@ def save_bottlebeck_features():
         shuffle=False)
     bottleneck_features_validation = model.predict_generator(
         generator, nb_validation_samples // batch_size)
-    np.save(open('bottleneck_features_validation.npy', 'w'),
-            bottleneck_features_validation)
+    np.save('bottleneck_features_validation_vgg16',bottleneck_features_validation)
 
 
 def train_top_model():
-    train_data = np.load(open('bottleneck_features_train.npy'))
+    train_data = np.load('bottleneck_features_train_vgg16.npy')
     train_labels = np.array(
-        [0] * (nb_train_samples / 2) + [1] * (nb_train_samples / 2))
+        [0] * (nb_train_samples // 2) + [1] * (nb_train_samples // 2))
 
-    validation_data = np.load(open('bottleneck_features_validation.npy'))
+    validation_data = np.load('bottleneck_features_validation_vgg16.npy')
     validation_labels = np.array(
-        [0] * (nb_validation_samples / 2) + [1] * (nb_validation_samples / 2))
+        [0] * (nb_validation_samples // 2) + [1] * (nb_validation_samples // 2))
 
     model = Sequential()
     model.add(Flatten(input_shape=train_data.shape[1:]))

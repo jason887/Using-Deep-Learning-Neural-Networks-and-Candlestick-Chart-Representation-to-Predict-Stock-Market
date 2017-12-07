@@ -38,6 +38,8 @@ def main():
         createLabel(args.input, args.seq_len)
     if args.mode == 'img2dt':
         image2dataset(args.input)
+    if args.mode == 'countImg':
+        countImage(args.input)
 
 def image2dataset(input):
 
@@ -132,6 +134,10 @@ def createLabel(fname, seq_len):
             the_file.write("{}-{},{}".format(fname[12:-4], i, label))
             the_file.write("\n")
 
+def countImage(input):
+    num_file = sum([len(files) for r, d, files in os.walk(input)])
+    num_dir = sum([len(d) for r, d, files in os.walk(input)])
+    print("num of files : {}\nnum of dir : {}".format(num_file,num_dir))
 
 def convert2image(fname, seq_len):
     # import plotly.graph_objs as go
