@@ -133,25 +133,15 @@ def convert2image(fname, seq_len):
         #py.image.save_as(fig, filename='dataset/images/{}.png'.format(i))
         offline.plot(fig, filename='dataset/images/{}-{}.html'.format(fname[12:-4], i),
                      image='png', auto_open=False, show_link=False, image_filename='dataset/images/{}-{}.png'.format(fname[11:-4], i))
+    # imagemagic script to resize img
     # find . -maxdepth 1 -iname "*.png" | xargs -L1 -I{} convert -adaptive-resize 48x48! "{}" "{}"
-    # import time
-    # from selenium import webdriver
-    #
-    # profile = webdriver.FirefoxProfile()
-    # profile.set_preference('browser.download.folderList', 2)  # custom location
-    # profile.set_preference('browser.download.manager.showWhenStarting', False)
-    # profile.set_preference('browser.download.dir', '/tmp')
-    # profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'image/png')
-    #
-    # driver = webdriver.Firefox(firefox_profile=profile)
-    # import glob, os
-    # os.chdir("dataset/images")
-    # for file in glob.glob("*.html"):
-    #     #file:///home/ros/ROS/research/Deep_Stock_Representation_learning%20-%20from_candlestick_charts_to_investment_decisions/dataset/images/4100.html
-    #     driver.get("file:///home/ros/ROS/research/Deep_Stock_Representation_learning%20-%20from_candlestick_charts_to_investment_decisions/dataset/images/{}".format(file))
-    #     export_button = driver.find_element_by_xpath("//a[@data-title='Download plot as a png']")
-    #     export_button.click()
-    #     time.sleep(10)
-    #     driver.quit()
+    # R Script convert html to img
+    # library(webshot)
+    # html_files <- list.files(pattern = ".html$", recursive = TRUE)
+    # for(i in html_files){
+    #   webshot(i, sprintf("%s", paste(i, "png", sep=".")),delay = 0.5)
+    #   #print(sprintf("%s", paste(i, "png", sep=".")))
+    #   print("done")
+    # }
 if __name__ == '__main__':
     main()

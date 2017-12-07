@@ -41,9 +41,6 @@ def main():
     args = parser.parse_args()
     # # fetch all data
 
-
-
-
     if args.source == "tiingo":
         for ticker in set(args.ticker):
             fetch_tiingo_data(ticker, args.start_date, args.end_date, "stockdatas/{}.csv".format(ticker))
