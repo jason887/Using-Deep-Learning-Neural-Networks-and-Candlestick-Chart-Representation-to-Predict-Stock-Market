@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 from plotly.tools import FigureFactory as FF
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 # offline.init_notebook_mode()
-
+import glob
 import argparse
-
+import os
 import decimal
 
 def drange(x, y, jump):
@@ -40,11 +40,41 @@ def main():
         image2dataset(args.input)
 
 def image2dataset(input):
-    img = load_img(input)  # this is a PIL image
-    x = img_to_array(img)  # this is a Numpy array with shape (3, 150, 150)
-    print(x.shape)
-    x = x.reshape((1,) + x.shape)  # this is a Numpy array with shape (1, 3, 150, 150)
-    #print(x)
+
+    label_dict = {}
+    with open("FTSE_label.txt") as f:
+        for line in f:
+           (key, val) = line.split(',')
+           label_dict[key] = val.rstrip()
+    #print(label_dict)
+    #print(list(label_dict.values())[list(label_dict.keys()).index('FTSE-80')])
+    path = "{}/{}".format(os.getcwd(),input)
+    # df = pd.DataFrame()
+    #os.chdir("{}/{}/".format(os.getcwd(),input))
+    #print(os.getcwd())
+
+    for filename in os.listdir(input):
+        print(filename)
+        print(os.getcwd())
+        if filename is not '':
+            #name = list(label_dict.keys())[list(label_dict.values()).index("{}".format(filename[15:-9]))]
+            label = list(label_dict.values())[list(label_dict.keys()).index("{}".format(filename[:-9]))]
+            # name = list(label_dict.keys())[list(label_dict.values()).index("{}".format(label))]
+            #print("name : {}".format(name))
+            #print(filename)
+            new_name = "{}{}".format(label,filename)
+            print("rename {} to {}".format(filename,new_name))
+            os.rename("{}/{}".format(path,filename), "{}/{}".format(path,new_name))
+            # img = load_img(filename)  # this is a PIL image
+            # x = img_to_array(img)  # this is a Numpy array with shape (3, 48, 48)
+            # x = x.reshape((1,) + x.shape)  # this is a Numpy array with shape (1, 3, 48, 48)
+            # y = list(label_dict.values())[list(label_dict.keys()).index("{}".format(filename[15:-9]))]
+            # df[idx] = x
+        # with open("{}_data.txt".format(filename[15:-9]), 'a') as the_file:
+        #     the_file.write("{},{}".format(x, y))
+        #     the_file.write("\n")
+    # print("{},{},{}".format(x,y,filename[15:-13]))
+    # print(df.head())
 
 def createLabel(fname, seq_len):
     # import plotly.graph_objs as go
@@ -99,7 +129,8 @@ def createLabel(fname, seq_len):
             label = "G"
         # print("{},{}-{}".format(perct, fname[12:-4], i))
         with open("{}_label.txt".format(fname[12:-4]), 'a') as the_file:
-            the_file.write("{},{}-{}\n".format(label, fname[12:-4], i))
+            the_file.write("{}-{},{}".format(fname[12:-4], i, label))
+            the_file.write("\n")
 
 
 def convert2image(fname, seq_len):
