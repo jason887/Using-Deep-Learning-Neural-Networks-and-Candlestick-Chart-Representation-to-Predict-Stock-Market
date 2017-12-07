@@ -35,7 +35,45 @@ def get_stock_data(normalize=True):
         df['adjClose'] = min_max_scaler.fit_transform(
             df.adjClose.values.reshape(-1, 1))
     return df
-
+def dataPreprocessing(dataFile,normalize,seq_len):
+    #data pre-processing
+    data = pd.read_csv(dataFile,index_col=0)
+    columnsTitles=["adjOpen","adjHigh","adjLow","adjVolume","adjClose"]
+    data=data.reindex(columns=columnsTitles)
+    if normalize:
+        min_max_scaler = preprocessing.MinMaxScaler()
+        data['adjOpen'] = min_max_scaler.fit_transform(
+            data.adjOpen.values.reshape(-1, 1))
+        data['adjHigh'] = min_max_scaler.fit_transform(
+            data.adjHigh.values.reshape(-1, 1))
+        data['adjLow'] = min_max_scaler.fit_transform(
+            data.adjLow.values.reshape(-1, 1))
+        data['adjVolume'] = min_max_scaler.fit_transform(
+            data.adjVolume.values.reshape(-1, 1))
+        data['adjClose'] = min_max_scaler.fit_transform(
+            data.adjClose.values.reshape(-1, 1))
+    amount_of_features = len(data.columns)
+    dataX = data.as_matrix()
+    sequence_length = seq_len + 1
+    result = []
+    # maxmimum date = lastest date - sequence length
+    for index in range(len(dataX) - sequence_length):
+        # index : index + seq_len days
+        result.append(dataX[index: index + sequence_length])
+    result = np.array(result)
+    row = round(0.9 * result.shape[0])  # 90% split
+    train = result[:int(row), :]
+    X_train = train[:, :-1]
+    y_train = train[:, -1][:, -1]
+    X_test = result[int(row):, :-1]
+    y_test = result[int(row):, -1][:, -1]
+#     X_train = X_train.reshape(len(X_train),2,2,1)
+#     X_test = X_test.reshape(len(X_test),2,2,1)
+    X_train = np.reshape(
+        X_train, (X_train.shape[0], X_train.shape[1], amount_of_features,1))
+    X_test = np.reshape(
+        X_test, (X_test.shape[0], X_test.shape[1], amount_of_features,1))
+    return [X_train, y_train, X_test, y_test]
 
 def load_data(stock, seq_len):
     amount_of_features = len(stock.columns)
