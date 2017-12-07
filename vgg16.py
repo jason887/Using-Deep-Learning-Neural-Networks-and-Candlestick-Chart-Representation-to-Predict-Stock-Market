@@ -47,8 +47,8 @@ img_width, img_height = 48, 48
 top_model_weights_path = 'bottleneck_fc_model.h5'
 train_data_dir = 'data/training'
 validation_data_dir = 'data/validation'
-nb_train_samples = 2000
-nb_validation_samples = 800
+nb_train_samples = 278
+nb_validation_samples = 82
 epochs = 50
 batch_size = 16
 

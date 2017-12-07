@@ -165,7 +165,7 @@ def convert2image(fname, seq_len):
         offline.plot(fig, filename='dataset/images/{}-{}.html'.format(fname[12:-4], i),
                      image='png', auto_open=False, show_link=False, image_filename='dataset/images/{}-{}.png'.format(fname[11:-4], i))
     # imagemagic script to resize img
-    # find . -maxdepth 1 -iname "*.png" | xargs -L1 -I{} convert -adaptive-resize 48x48! "{}" "{}"
+    # find . -maxdepth 1 -iname "*.png" | xargs -L1 -I{} convert -flatten +matte -adaptive-resize 48x48! "{}" "{}"
     # R Script convert html to img
     # library(webshot)
     # html_files <- list.files(pattern = ".html$", recursive = TRUE)
