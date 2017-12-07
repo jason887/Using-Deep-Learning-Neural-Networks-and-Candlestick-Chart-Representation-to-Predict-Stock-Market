@@ -2,12 +2,13 @@ import pandas as pd
 import plotly.offline as offline
 import matplotlib.pyplot as plt
 from plotly.tools import FigureFactory as FF
-from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
+# from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 # offline.init_notebook_mode()
 import glob
 import argparse
 import os
 import decimal
+from shutil import copyfile
 
 def drange(x, y, jump):
   while x < y:
@@ -59,7 +60,6 @@ def image2dataset(input):
         print(filename)
         print(os.getcwd())
         if filename is not '':
-            #name = list(label_dict.keys())[list(label_dict.values()).index("{}".format(filename[15:-9]))]
             label = list(label_dict.values())[list(label_dict.keys()).index("{}".format(filename[:-9]))]
             # name = list(label_dict.keys())[list(label_dict.values()).index("{}".format(label))]
             #print("name : {}".format(name))
@@ -67,16 +67,29 @@ def image2dataset(input):
             new_name = "{}{}".format(label,filename)
             print("rename {} to {}".format(filename,new_name))
             os.rename("{}/{}".format(path,filename), "{}/{}".format(path,new_name))
-            # img = load_img(filename)  # this is a PIL image
-            # x = img_to_array(img)  # this is a Numpy array with shape (3, 48, 48)
-            # x = x.reshape((1,) + x.shape)  # this is a Numpy array with shape (1, 3, 48, 48)
-            # y = list(label_dict.values())[list(label_dict.keys()).index("{}".format(filename[15:-9]))]
-            # df[idx] = x
-        # with open("{}_data.txt".format(filename[15:-9]), 'a') as the_file:
-        #     the_file.write("{},{}".format(x, y))
-        #     the_file.write("\n")
-    # print("{},{},{}".format(x,y,filename[15:-13]))
-    # print(df.head())
+
+    folders = ['A','B','C','D','E','F','G']
+    for folder in folders:
+        if not os.path.exists("{}/classes/{}".format(path,folder)):
+            os.makedirs("{}/classes/{}".format(path,folder))
+
+    for filename in os.listdir(input):
+        if filename is not '':
+            # print(filename[:1])
+            if filename[:1] == "A":
+                copyfile("{}/{}".format(path,filename), "{}/classes/A/{}".format(path,filename))
+            elif filename[:1] == "B":
+                copyfile("{}/{}".format(path,filename), "{}/classes/B/{}".format(path,filename))
+            elif filename[:1] == "C":
+                copyfile("{}/{}".format(path,filename), "{}/classes/C/{}".format(path,filename))
+            elif filename[:1] == "D":
+                copyfile("{}/{}".format(path,filename), "{}/classes/D/{}".format(path,filename))
+            elif filename[:1] == "E":
+                copyfile("{}/{}".format(path,filename), "{}/classes/E/{}".format(path,filename))
+            elif filename[:1] == "F":
+                copyfile("{}/{}".format(path,filename), "{}/classes/F/{}".format(path,filename))
+            elif filename[:1] == "G":
+                copyfile("{}/{}".format(path,filename), "{}/classes/G/{}".format(path,filename))
 
 def createLabel(fname, seq_len):
     # import plotly.graph_objs as go
@@ -163,8 +176,8 @@ def convert2image(fname, seq_len):
         fig['layout'].update({
             'xaxis': dict(visible=False),
             'yaxis': dict(visible=False),
-            'paper_bgcolor': 'rgba(1,1,1,1)',
-            'plot_bgcolor': 'rgba(1,1,1,1)'
+            'paper_bgcolor': 'rgb(255,255,255)',
+            'plot_bgcolor': 'rgb(255,255,255)'
         })
         #plot_mpl(fig, image='png')
         #py.image.save_as(fig, filename='dataset/images/{}.png'.format(i))
