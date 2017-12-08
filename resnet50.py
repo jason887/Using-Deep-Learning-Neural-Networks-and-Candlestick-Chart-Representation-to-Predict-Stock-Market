@@ -1,6 +1,16 @@
+# import tensorflow as tf # uncomment this for using GPU
 import os
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # see issue #152
-os.environ["CUDA_VISIBLE_DEVICES"] = ""
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # comment this for using GPU
+os.environ["CUDA_VISIBLE_DEVICES"] = "" # change with 1 for using GPU
+# uncomment below for using GPU
+# config = tf.ConfigProto()
+# # maximun alloc gpu50% of MEM
+# config.gpu_options.per_process_gpu_memory_fraction = 0.5
+# #allocate dynamically
+# config.gpu_options.allow_growth = True
+# sess = tf.Session(config = config)
+
+
 
 import math, json, os, sys
 
