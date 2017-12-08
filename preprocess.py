@@ -10,10 +10,12 @@ import os
 import decimal
 from shutil import copyfile
 
+
 def drange(x, y, jump):
-  while x < y:
-    yield float(x)
-    x += decimal.Decimal(jump)
+    while x < y:
+        yield float(x)
+        x += decimal.Decimal(jump)
+
 
 def isnan(value):
     try:
@@ -34,7 +36,7 @@ def main():
                         help='mode of preprocessing data', required=True)
     args = parser.parse_args()
     if args.mode == 'convert2image':
-        convert2image(args.input,args.seq_len)
+        convert2image(args.input, args.seq_len)
     if args.mode == 'createLabel':
         createLabel(args.input, args.seq_len)
     if args.mode == 'img2dt':
@@ -42,54 +44,57 @@ def main():
     if args.mode == 'countImg':
         countImage(args.input)
 
+
 def image2dataset(input):
 
     label_dict = {}
     with open("FTSE_label.txt") as f:
         for line in f:
-           (key, val) = line.split(',')
-           label_dict[key] = val.rstrip()
-    #print(label_dict)
-    #print(list(label_dict.values())[list(label_dict.keys()).index('FTSE-80')])
-    path = "{}/{}".format(os.getcwd(),input)
+            (key, val) = line.split(',')
+            label_dict[key] = val.rstrip()
+    # print(label_dict)
+    # print(list(label_dict.values())[list(label_dict.keys()).index('FTSE-80')])
+    path = "{}/{}".format(os.getcwd(), input)
     # df = pd.DataFrame()
-    #os.chdir("{}/{}/".format(os.getcwd(),input))
-    #print(os.getcwd())
+    # os.chdir("{}/{}/".format(os.getcwd(),input))
+    # print(os.getcwd())
 
     for filename in os.listdir(input):
         print(filename)
         print(os.getcwd())
         if filename is not '':
-            label = list(label_dict.values())[list(label_dict.keys()).index("{}".format(filename[:-9]))]
+            label = list(label_dict.values())[
+                list(label_dict.keys()).index("{}".format(filename[:-9]))]
             # name = list(label_dict.keys())[list(label_dict.values()).index("{}".format(label))]
             #print("name : {}".format(name))
-            #print(filename)
-            new_name = "{}{}".format(label,filename)
-            print("rename {} to {}".format(filename,new_name))
-            os.rename("{}/{}".format(path,filename), "{}/{}".format(path,new_name))
+            # print(filename)
+            new_name = "{}{}.png".format(label, filename[:-9])
+            print("rename {} to {}".format(filename, new_name))
+            # os.rename("{}/{}".format(path,filename), "{}/{}".format(path,new_name))
 
-    folders = ['A','B','C','D','E','F','G']
-    for folder in folders:
-        if not os.path.exists("{}/classes/{}".format(path,folder)):
-            os.makedirs("{}/classes/{}".format(path,folder))
+    # folders = ['A','B','C','D','E','F','G']
+    # for folder in folders:
+    #     if not os.path.exists("{}/classes/{}".format(path,folder)):
+    #         os.makedirs("{}/classes/{}".format(path,folder))
+    #
+    # for filename in os.listdir(input):
+    #     if filename is not '':
+    #         # print(filename[:1])
+    #         if filename[:1] == "A":
+    #             copyfile("{}/{}".format(path,filename), "{}/classes/A/{}".format(path,filename))
+    #         elif filename[:1] == "B":
+    #             copyfile("{}/{}".format(path,filename), "{}/classes/B/{}".format(path,filename))
+    #         elif filename[:1] == "C":
+    #             copyfile("{}/{}".format(path,filename), "{}/classes/C/{}".format(path,filename))
+    #         elif filename[:1] == "D":
+    #             copyfile("{}/{}".format(path,filename), "{}/classes/D/{}".format(path,filename))
+    #         elif filename[:1] == "E":
+    #             copyfile("{}/{}".format(path,filename), "{}/classes/E/{}".format(path,filename))
+    #         elif filename[:1] == "F":
+    #             copyfile("{}/{}".format(path,filename), "{}/classes/F/{}".format(path,filename))
+    #         elif filename[:1] == "G":
+    #             copyfile("{}/{}".format(path,filename), "{}/classes/G/{}".format(path,filename))
 
-    for filename in os.listdir(input):
-        if filename is not '':
-            # print(filename[:1])
-            if filename[:1] == "A":
-                copyfile("{}/{}".format(path,filename), "{}/classes/A/{}".format(path,filename))
-            elif filename[:1] == "B":
-                copyfile("{}/{}".format(path,filename), "{}/classes/B/{}".format(path,filename))
-            elif filename[:1] == "C":
-                copyfile("{}/{}".format(path,filename), "{}/classes/C/{}".format(path,filename))
-            elif filename[:1] == "D":
-                copyfile("{}/{}".format(path,filename), "{}/classes/D/{}".format(path,filename))
-            elif filename[:1] == "E":
-                copyfile("{}/{}".format(path,filename), "{}/classes/E/{}".format(path,filename))
-            elif filename[:1] == "F":
-                copyfile("{}/{}".format(path,filename), "{}/classes/F/{}".format(path,filename))
-            elif filename[:1] == "G":
-                copyfile("{}/{}".format(path,filename), "{}/classes/G/{}".format(path,filename))
 
 def createLabel(fname, seq_len):
     # import plotly.graph_objs as go
@@ -126,19 +131,19 @@ def createLabel(fname, seq_len):
         if perct < -1.5:
             label = "A"
         if perct > -1.5 and perct < -0.5:
-        #if perct in range(-1.5, -0.5):
+            # if perct in range(-1.5, -0.5):
             label = "B"
         if perct > -0.5 and perct < 0.4:
-        #if perct in range(-0.5, 0.4):
+            # if perct in range(-0.5, 0.4):
             label = "C"
         if perct > 0.4 and perct < 1.4:
-        #if perct in range(0.4, 1.4):
+            # if perct in range(0.4, 1.4):
             label = "D"
         if perct > 1.4 and perct < 2.5:
-        #if perct in range(1.4, 2.5):
+            # if perct in range(1.4, 2.5):
             label = "E"
         if perct > 2.5 and perct < 4.3:
-        #if perct in range(2.5, 4.3):
+            # if perct in range(2.5, 4.3):
             label = "F"
         if perct > 4.3:
             label = "G"
@@ -147,10 +152,12 @@ def createLabel(fname, seq_len):
             the_file.write("{}-{},{}".format(fname[12:-4], i, label))
             the_file.write("\n")
 
+
 def countImage(input):
     num_file = sum([len(files) for r, d, files in os.walk(input)])
     num_dir = sum([len(d) for r, d, files in os.walk(input)])
-    print("num of files : {}\nnum of dir : {}".format(num_file,num_dir))
+    print("num of files : {}\nnum of dir : {}".format(num_file, num_dir))
+
 
 def convert2image(fname, seq_len):
     # import plotly.graph_objs as go
@@ -183,6 +190,8 @@ def convert2image(fname, seq_len):
         #py.image.save_as(fig, filename='dataset/images/{}.png'.format(i))
         offline.plot(fig, filename='dataset/images/{}-{}.html'.format(fname[12:-4], i),
                      image='png', auto_open=False, show_link=False, image_filename='dataset/images/{}-{}.png'.format(fname[11:-4], i))
+
+
     # imagemagic script to resize img
     # find . -maxdepth 1 -iname "*.png" | xargs -L1 -I{} convert -flatten +matte -adaptive-resize 48x48! "{}" "{}"
     # R Script convert html to img

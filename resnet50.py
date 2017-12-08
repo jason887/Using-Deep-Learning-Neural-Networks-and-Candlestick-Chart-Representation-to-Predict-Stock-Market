@@ -1,3 +1,7 @@
+import os
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # see issue #152
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
+
 import math, json, os, sys
 
 import keras
@@ -12,46 +16,34 @@ from keras import backend as K
 import numpy as np
 from keras import applications
 from keras.preprocessing.image import ImageDataGenerator
+from keras.utils import np_utils
+import dataset
 
 
 # dimensions of our images.
-img_width, img_height = 48, 48
+img_width, img_height = 200, 200
 channel = 3
-top_model_weights_path = 'bottleneck_fc_model.h5'
-train_data_dir = 'data/training'
-validation_data_dir = 'data/validation'
-nb_train_samples = 272
-nb_validation_samples = 80
-epochs = 100
-batch_size = 16
+epochs = 60
+batch_size = 64
 SHAPE = (img_width, img_height ,channel)
 bn_axis = 3 if K.image_dim_ordering() == 'tf' else 1
 
-def save_bottlebeck_features():
-    datagen = ImageDataGenerator(rescale=1./255)
+data_directory = "data/dataset_white/"
 
-    # build the VGG16 network
-    model = applications.ResNet50(include_top=False, weights='imagenet')
+print ("loading dataset")
 
-    generator = datagen.flow_from_directory(
-        train_data_dir,
-        target_size=(img_width, img_height),
-        batch_size=batch_size,
-        class_mode=None,
-        shuffle=False)
-    bottleneck_features_train = model.predict_generator(
-        generator, nb_train_samples // batch_size)
-    np.save('bottleneck_features_train_resnet50',bottleneck_features_train)
+X, y, tags = dataset.dataset(data_directory, img_width)
+nb_classes = len(tags)
 
-    generator = datagen.flow_from_directory(
-        validation_data_dir,
-        target_size=(img_width, img_height),
-        batch_size=batch_size,
-        class_mode=None,
-        shuffle=False)
-    bottleneck_features_validation = model.predict_generator(
-        generator, nb_validation_samples // batch_size)
-    np.save('bottleneck_features_validation_resnet50',bottleneck_features_validation)
+sample_count = len(y)
+train_size = sample_count * 4 // 5
+print("train size : {}".format(train_size))
+X_train = X[:train_size]
+y_train = y[:train_size]
+Y_train = np_utils.to_categorical(y_train, nb_classes)
+X_test  = X[train_size:]
+y_test  = y[train_size:]
+Y_test = np_utils.to_categorical(y_test, nb_classes)
 
 def build_model(seed=None):
     # We can't use ResNet50 directly, as it might cause a negative dimension
@@ -88,30 +80,41 @@ def build_model(seed=None):
     x = identity_block(x, 3, [512, 512, 2048], stage=5, block='b')
     x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c')
     #print(x)
-    #x = AveragePooling2D((7, 7), name='avg_pool')(x)
+    x = AveragePooling2D((7, 7), name='avg_pool')(x)
 
 
     x = Flatten()(x)
-    x = Dense(2, activation='softmax', name='fc10')(x)
+    x = Dense(nb_classes, activation='softmax', name='fc10')(x)
 
     model = Model(input_layer, x)
 
     return model
 
 if __name__ == "__main__":
-    save_bottlebeck_features()
-    train_data = np.load('bottleneck_features_train_resnet50.npy')
-    train_labels = np.array(
-        [0] * (nb_train_samples // 2) + [1] * (nb_train_samples // 2))
-
-    validation_data = np.load('bottleneck_features_validation_resnet50.npy')
-    validation_labels = np.array(
-        [0] * (nb_validation_samples // 2) + [1] * (nb_validation_samples // 2))
 
     model = build_model()
+    #model.compile(optimizer='sgd', loss='categorical_crossentropy', metrics=['accuracy'])
+    #model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'])
+    #model.compile(optimizer='adagrad', loss='categorical_crossentropy', metrics=['accuracy'])
+    #model.compile(optimizer='adadelta', loss='categorical_crossentropy', metrics=['accuracy'])
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-    model.fit(train_data, train_labels, batch_size=64, nb_epoch=60)
-    model.save('resnet50_final.h5')
-    score = model.evaluate(validation_data=val_batches, verbose=1)
+    #model.compile(optimizer='adamax', loss='categorical_crossentropy', metrics=['accuracy'])
+    #model.compile(optimizer='nadam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+    # Fit the model
+    model.fit(X_train, Y_train, batch_size=batch_size, nb_epoch=epochs)
+
+    # Save Model or creates a HDF5 file
+    model.save('60_resnet50_efflux_model.h5', overwrite=True)
+    #del model  # deletes the existing model
+
+
+
+    # predict
+    pred_y = model.predict(X_test)
+
+    print(pred_y);
+
+    score = model.evaluate(X_test, Y_test, verbose=1)
     print('\n\nOverall Test score:', score[0])
     print('Overall Test accuracy:', score[1])
