@@ -76,7 +76,7 @@ def build_model(SHAPE,nb_classes,bn_axis,seed=None):
     x = identity_block(x, 3, [512, 512, 2048], stage=5, block='b')
     x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c')
     #print(x)
-    x = AveragePooling2D((7, 7), name='avg_pool')(x)
+    #x = AveragePooling2D((7, 7), name='avg_pool')(x)
 
 
     x = Flatten()(x)
@@ -109,6 +109,7 @@ def main():
     epochs = args.epochs
     batch_size = args.batch_size
     SHAPE = (img_width, img_height ,channel)
+    # print("SHAPE : {}".format(SHAPE))
     bn_axis = 3 if K.image_dim_ordering() == 'tf' else 1
 
     data_directory = args.input
@@ -126,17 +127,9 @@ def main():
     model.fit(X_train, Y_train, batch_size=batch_size, epochs=epochs)
 
     # Save Model or creates a HDF5 file
-    model.save('{}epochs_{}period_resnet18_model.h5'.format(epochs,period_name[1]), overwrite=True)
+    model.save('{}epochs_{}period_{}dimension_resnet18_model.h5'.format(epochs,period_name[2],period_name[1]), overwrite=True)
     #del model  # deletes the existing model
 
-    # predict
-    pred_y = model.predict(X_test)
-
-    print(pred_y);
-
-    score = model.evaluate(X_test, Y_test, verbose=1)
-    print('Overall Test score: {}'.format(score[0]))
-    print('Overall Test accuracy: {}'.format(score[1]))
     end_time = time.monotonic()
     print("Duration : {}".format(timedelta(seconds=end_time - start_time)))
 
