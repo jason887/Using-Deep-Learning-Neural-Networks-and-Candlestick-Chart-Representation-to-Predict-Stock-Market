@@ -102,21 +102,21 @@ def main():
     parser.add_argument('-i', '--input',
                         help='an input directory of dataset', required=True)
     parser.add_argument('-d', '--dimension',
-                        help='a image dimension', default=200)
+                        help='a image dimension', type=int, default=200)
     parser.add_argument('-c', '--channel',
-                        help='a image channel', default=3)
+                        help='a image channel', type=int, default=3)
     parser.add_argument('-e', '--epochs',
-                        help='num of epochs', default=10)
+                        help='num of epochs', type=int, default=10)
     parser.add_argument('-b', '--batch_size',
-                        help='num of batch_size', default=64)
+                        help='num of batch_size', type=int, default=64)
     parser.add_argument('-o', '--optimizer',
                         help='choose the optimizer (rmsprop, adagrad, adadelta, adam, adamax, nadam)', default="adam")
     args = parser.parse_args()
     # dimensions of our images.
-    img_width, img_height = int(args.dimension), int(args.dimension)
-    channel = int(args.channel)
-    epochs = int(args.epochs)
-    batch_size = int(args.batch_size)
+    img_width, img_height = args.dimension, args.dimension
+    channel = args.channel
+    epochs = args.epochs
+    batch_size = args.batch_size
     SHAPE = (img_width, img_height ,channel)
     bn_axis = 3 if K.image_dim_ordering() == 'tf' else 1
 
