@@ -1,15 +1,14 @@
-import tensorflow as tf # uncomment this for using GPU
+# import tensorflow as tf # uncomment this for using GPU
 import os
-# os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # comment this for using GPU
-# os.environ["CUDA_VISIBLE_DEVICES"] = "" # change with 1 for using GPU
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # comment this for using GPU
+os.environ["CUDA_VISIBLE_DEVICES"] = ""  # change with 1 for using GPU
 # uncomment below for using GPU
-config = tf.ConfigProto()
-# maximun alloc gpu50% of MEM
-config.gpu_options.per_process_gpu_memory_fraction = 0.5
-#allocate dynamically
-config.gpu_options.allow_growth = True
-sess = tf.Session(config = config)
+# config = tf.ConfigProto()
+# # maximun alloc gpu50% of MEM
+# config.gpu_options.per_process_gpu_memory_fraction = 0.5
+# #allocate dynamically
+# config.gpu_options.allow_growth = True
+# sess = tf.Session(config = config)
 
 import math, json, os, sys
 
@@ -30,6 +29,7 @@ import dataset
 import argparse
 
 import time
+from datetime import timedelta
 
 def build_dataset(data_directory, img_width):
     X, y, tags = dataset.dataset(data_directory, int(img_width))
@@ -87,34 +87,36 @@ def build_model(SHAPE,nb_classes,bn_axis,seed=None):
     return model
 
 def main():
-    start_time = time.time()
+    start_time = time.monotonic()
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-i', '--input',
                         help='an input directory of dataset', required=True)
     parser.add_argument('-d', '--dimension',
-                        help='a image dimension', default=200)
+                        help='a image dimension', type=int, default=200)
     parser.add_argument('-c', '--channel',
-                        help='a image channel', default=3)
+                        help='a image channel', type=int, default=3)
     parser.add_argument('-e', '--epochs',
-                        help='num of epochs', default=10)
+                        help='num of epochs', type=int, default=10)
     parser.add_argument('-b', '--batch_size',
-                        help='num of batch_size', default=64)
+                        help='num of batch_size', type=int, default=64)
     parser.add_argument('-o', '--optimizer',
                         help='choose the optimizer (rmsprop, adagrad, adadelta, adam, adamax, nadam)', default="adam")
     args = parser.parse_args()
     # dimensions of our images.
-    img_width, img_height = int(args.dimension), int(args.dimension)
-    channel = int(args.channel)
-    epochs = int(args.epochs)
-    batch_size = int(args.batch_size)
+    img_width, img_height = args.dimension, args.dimension
+    channel = args.channel
+    epochs = args.epochs
+    batch_size = args.batch_size
     SHAPE = (img_width, img_height ,channel)
     bn_axis = 3 if K.image_dim_ordering() == 'tf' else 1
 
     data_directory = args.input
+    period_name = data_directory.split('/')
 
     print ("loading dataset")
     X_train, Y_train, X_test, Y_test, nb_classes= build_dataset(data_directory, args.dimension)
+    print("number of classes : {}".format(nb_classes))
 
     model = build_model(SHAPE,nb_classes,bn_axis)
 
@@ -124,7 +126,7 @@ def main():
     model.fit(X_train, Y_train, batch_size=batch_size, epochs=epochs)
 
     # Save Model or creates a HDF5 file
-    model.save('{}_resnet50_efflux_model.h5'.format(epochs), overwrite=True)
+    model.save('{}epochs_{}period_resnet18_model.h5'.format(epochs,period_name[1]), overwrite=True)
     #del model  # deletes the existing model
 
     # predict
@@ -135,7 +137,8 @@ def main():
     score = model.evaluate(X_test, Y_test, verbose=1)
     print('Overall Test score: {}'.format(score[0]))
     print('Overall Test accuracy: {}'.format(score[1]))
-    print("%f seconds" % (time.time() - start_time))
+    end_time = time.monotonic()
+    print("Duration : {}".format(timedelta(seconds=end_time - start_time)))
 
 if __name__ == "__main__":
     main()
