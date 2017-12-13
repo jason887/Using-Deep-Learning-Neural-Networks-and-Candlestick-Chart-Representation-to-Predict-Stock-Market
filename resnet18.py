@@ -1,15 +1,14 @@
-import tensorflow as tf # uncomment this for using GPU
+# import tensorflow as tf # uncomment this for using GPU
 import os
-# os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # comment this for using GPU
-# os.environ["CUDA_VISIBLE_DEVICES"] = "" # change with 1 for using GPU
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # comment this for using GPU
+os.environ["CUDA_VISIBLE_DEVICES"] = ""  # change with 1 for using GPU
 # uncomment below for using GPU
-config = tf.ConfigProto()
-# maximun alloc gpu50% of MEM
-config.gpu_options.per_process_gpu_memory_fraction = 0.5
-#allocate dynamically
-config.gpu_options.allow_growth = True
-sess = tf.Session(config = config)
+# config = tf.ConfigProto()
+# # maximun alloc gpu50% of MEM
+# config.gpu_options.per_process_gpu_memory_fraction = 0.5
+# #allocate dynamically
+# config.gpu_options.allow_growth = True
+# sess = tf.Session(config = config)
 
 import math, json, os, sys
 
@@ -115,27 +114,28 @@ def main():
 
     print ("loading dataset")
     X_train, Y_train, X_test, Y_test, nb_classes= build_dataset(data_directory, args.dimension)
+    print("number of classes : {}".format(nb_classes))
 
-    model = build_model(SHAPE,nb_classes,bn_axis)
+    #model = build_model(SHAPE,nb_classes,bn_axis)
 
-    model.compile(optimizer=args.optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
-
-    # Fit the model
-    model.fit(X_train, Y_train, batch_size=batch_size, epochs=epochs)
-
-    # Save Model or creates a HDF5 file
-    model.save('{}_resnet50_efflux_model.h5'.format(epochs), overwrite=True)
-    #del model  # deletes the existing model
-
-    # predict
-    pred_y = model.predict(X_test)
-
-    print(pred_y);
-
-    score = model.evaluate(X_test, Y_test, verbose=1)
-    print('Overall Test score: {}'.format(score[0]))
-    print('Overall Test accuracy: {}'.format(score[1]))
-    print("%f seconds" % (time.time() - start_time))
+    # model.compile(optimizer=args.optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
+    #
+    # # Fit the model
+    # model.fit(X_train, Y_train, batch_size=batch_size, epochs=epochs)
+    #
+    # # Save Model or creates a HDF5 file
+    # model.save('{}_resnet50_efflux_model.h5'.format(epochs), overwrite=True)
+    # #del model  # deletes the existing model
+    #
+    # # predict
+    # pred_y = model.predict(X_test)
+    #
+    # print(pred_y);
+    #
+    # score = model.evaluate(X_test, Y_test, verbose=1)
+    # print('Overall Test score: {}'.format(score[0]))
+    # print('Overall Test accuracy: {}'.format(score[1]))
+    # print("%f seconds" % (time.time() - start_time))
 
 if __name__ == "__main__":
     main()
