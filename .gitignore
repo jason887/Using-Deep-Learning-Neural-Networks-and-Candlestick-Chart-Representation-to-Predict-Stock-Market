@@ -9,6 +9,8 @@ __pycache__/
 # custom dir
 experiment/
 dataset/
+data_backup/
+model/
 
 # Distribution / packaging
 .Python

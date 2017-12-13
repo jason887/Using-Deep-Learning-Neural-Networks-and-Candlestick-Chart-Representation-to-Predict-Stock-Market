@@ -1,7 +1,7 @@
 # import tensorflow as tf # uncomment this for using GPU
 import os
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # comment this for using GPU
-os.environ["CUDA_VISIBLE_DEVICES"] = "" # change with 1 for using GPU
+os.environ["CUDA_VISIBLE_DEVICES"] = ""  # change with 1 for using GPU
 # uncomment below for using GPU
 # config = tf.ConfigProto()
 # # maximun alloc gpu50% of MEM
@@ -10,9 +10,10 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "" # change with 1 for using GPU
 # config.gpu_options.allow_growth = True
 # sess = tf.Session(config = config)
 
-
-
-import math, json, os, sys
+import math
+import json
+import os
+import sys
 
 import keras
 from keras.callbacks import EarlyStopping, ModelCheckpoint
@@ -28,38 +29,32 @@ from keras import applications
 from keras.preprocessing.image import ImageDataGenerator
 from keras.utils import np_utils
 import dataset
+import argparse
+
+import time
 
 
-# dimensions of our images.
-img_width, img_height = 200, 200
-channel = 3
-epochs = 60
-batch_size = 64
-SHAPE = (img_width, img_height ,channel)
-bn_axis = 3 if K.image_dim_ordering() == 'tf' else 1
+def build_dataset(data_directory, img_width):
+    X, y, tags = dataset.dataset(data_directory, int(img_width))
+    nb_classes = len(tags)
 
-data_directory = "data/dataset_white/"
+    sample_count = len(y)
+    train_size = sample_count * 4 // 5
+    print("train size : {}".format(train_size))
+    X_train = X[:train_size]
+    y_train = y[:train_size]
+    Y_train = np_utils.to_categorical(y_train, nb_classes)
+    X_test = X[train_size:]
+    y_test = y[train_size:]
+    Y_test = np_utils.to_categorical(y_test, nb_classes)
+    return X_train, Y_train, X_test, Y_test, nb_classes
 
-print ("loading dataset")
 
-X, y, tags = dataset.dataset(data_directory, img_width)
-nb_classes = len(tags)
-
-sample_count = len(y)
-train_size = sample_count * 4 // 5
-print("train size : {}".format(train_size))
-X_train = X[:train_size]
-y_train = y[:train_size]
-Y_train = np_utils.to_categorical(y_train, nb_classes)
-X_test  = X[train_size:]
-y_test  = y[train_size:]
-Y_test = np_utils.to_categorical(y_test, nb_classes)
-
-def build_model(seed=None):
+def build_model(SHAPE, nb_classes, bn_axis, seed=None):
     # We can't use ResNet50 directly, as it might cause a negative dimension
     # error.
     if seed:
-        np.random.seed(seed)
+          np.random.seed(seed)
 
     input_layer = Input(shape=SHAPE)
 
@@ -89,7 +84,7 @@ def build_model(seed=None):
     x = conv_block(x, 3, [512, 512, 2048], stage=5, block='a')
     x = identity_block(x, 3, [512, 512, 2048], stage=5, block='b')
     x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c')
-    #print(x)
+    # print(x)
     x = AveragePooling2D((7, 7), name='avg_pool')(x)
 
 
@@ -100,25 +95,46 @@ def build_model(seed=None):
 
     return model
 
-if __name__ == "__main__":
+def main():
+    start_time = time.time()
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('-i', '--input',
+                        help='an input directory of dataset', required=True)
+    parser.add_argument('-d', '--dimension',
+                        help='a image dimension', default=200)
+    parser.add_argument('-c', '--channel',
+                        help='a image channel', default=3)
+    parser.add_argument('-e', '--epochs',
+                        help='num of epochs', default=10)
+    parser.add_argument('-b', '--batch_size',
+                        help='num of batch_size', default=64)
+    parser.add_argument('-o', '--optimizer',
+                        help='choose the optimizer (rmsprop, adagrad, adadelta, adam, adamax, nadam)', default="adam")
+    args = parser.parse_args()
+    # dimensions of our images.
+    img_width, img_height = int(args.dimension), int(args.dimension)
+    channel = int(args.channel)
+    epochs = int(args.epochs)
+    batch_size = int(args.batch_size)
+    SHAPE = (img_width, img_height ,channel)
+    bn_axis = 3 if K.image_dim_ordering() == 'tf' else 1
 
-    model = build_model()
-    #model.compile(optimizer='sgd', loss='categorical_crossentropy', metrics=['accuracy'])
-    #model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'])
-    #model.compile(optimizer='adagrad', loss='categorical_crossentropy', metrics=['accuracy'])
-    #model.compile(optimizer='adadelta', loss='categorical_crossentropy', metrics=['accuracy'])
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-    #model.compile(optimizer='adamax', loss='categorical_crossentropy', metrics=['accuracy'])
-    #model.compile(optimizer='nadam', loss='categorical_crossentropy', metrics=['accuracy'])
+    data_directory = args.input
+
+    print ("loading dataset")
+    X_train, Y_train, X_test, Y_test, nb_classes= build_dataset(data_directory, args.dimension)
+
+    model = build_model(SHAPE,nb_classes,bn_axis)
+
+    model.compile(optimizer=args.optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
 
     # Fit the model
-    model.fit(X_train, Y_train, batch_size=batch_size, nb_epoch=epochs)
+    model.fit(X_train, Y_train, batch_size=batch_size, epochs=epochs)
 
     # Save Model or creates a HDF5 file
-    model.save('60_resnet50_efflux_model.h5', overwrite=True)
-    #del model  # deletes the existing model
-
-
+    model.save('{}_resnet50_efflux_model.h5'.format(epochs), overwrite=True)
+    # del model  # deletes the existing model
 
     # predict
     pred_y = model.predict(X_test)
@@ -126,5 +142,9 @@ if __name__ == "__main__":
     print(pred_y);
 
     score = model.evaluate(X_test, Y_test, verbose=1)
-    print('\n\nOverall Test score:', score[0])
-    print('Overall Test accuracy:', score[1])
+    print('Overall Test score: {}'.format(score[0]))
+    print('Overall Test accuracy: {}'.format(score[1]))
+    print("%f seconds" % (time.time() - start_time))
+
+if __name__ == "__main__":
+    main()

@@ -4,17 +4,6 @@ from keras.models import Sequential
 from keras.layers import Dropout, Flatten, Dense
 from keras import applications
 
-# dimensions of our images.
-img_width, img_height = 48, 48
-
-top_model_weights_path = 'bottleneck_fc_model_vgg16.h5'
-train_data_dir = 'data/training'
-validation_data_dir = 'data/validation'
-nb_train_samples = 272
-nb_validation_samples = 80
-epochs = 100
-batch_size = 16
-
 
 def save_bottlebeck_features():
     datagen = ImageDataGenerator(rescale=1./255)
@@ -71,6 +60,34 @@ def train_top_model():
     print('Overall Test accuracy:', score[1])
     model.save_weights(top_model_weights_path)
 
+def main():
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('-i', '--input',
+                        help='an input directory of dataset', required=True)
+    parser.add_argument('-d', '--dimension',
+                        help='a image dimension', default=200)
+    parser.add_argument('-c', '--channel',
+                        help='a image channel', default=3)
+    parser.add_argument('-e', '--epochs',
+                        help='num of epochs', default=10)
+    parser.add_argument('-b', '--batch_size',
+                        help='num of batch_size', default=64)
+    parser.add_argument('-o', '--optimizer',
+                        help='choose the optimizer (rmsprop, adagrad, adadelta, adam, adamax, nadam)', default="adam")
+    args = parser.parse_args()
+    # dimensions of our images.
+    img_width, img_height = 48, 48
 
-save_bottlebeck_features()
-train_top_model()
+    top_model_weights_path = 'bottleneck_fc_model_vgg16.h5'
+    train_data_dir = 'data/training'
+    validation_data_dir = 'data/validation'
+    nb_train_samples = 272
+    nb_validation_samples = 80
+    epochs = 100
+    batch_size = 16
+    save_bottlebeck_features()
+    train_top_model()
+
+if __name__ == "__main__":
+    main()

@@ -10,6 +10,9 @@ import os
 import decimal
 from shutil import copyfile
 
+import imgkit
+
+import subprocess
 
 def drange(x, y, jump):
     while x < y:
@@ -29,26 +32,57 @@ def main():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-i', '--input',
-                        help='an csv file of stock data', required=True)
+                        help='a csv file of stock data', required=True)
     parser.add_argument('-l', '--seq_len',
                         help='num of sequence length', default=20)
+    parser.add_argument('-lf', '--label_file',
+                        help='a label_file')
+    parser.add_argument('-d', '--dimension',
+                        help='a dimension value')
     parser.add_argument('-m', '--mode',
                         help='mode of preprocessing data', required=True)
     args = parser.parse_args()
-    if args.mode == 'convert2image':
-        convert2image(args.input, args.seq_len)
+    if args.mode == 'olhc2cs':
+        olhc2cs(args.input, args.seq_len)
     if args.mode == 'createLabel':
         createLabel(args.input, args.seq_len)
     if args.mode == 'img2dt':
-        image2dataset(args.input)
+        image2dataset(args.input, args.label_file)
     if args.mode == 'countImg':
         countImage(args.input)
+    if args.mode == 'html2img':
+        html2img(args.input, args.dimension)
 
+def html2img(input, dim):
+    # get a list of all the files to open
+    glob_folder = os.path.join("{}/html".format(input), '*.html')
+    path_html = "{}/{}/html".format(os.getcwd(),input)
+    path_img = "{}/{}/img".format(os.getcwd(),input)
+    html_file_list = glob.glob(glob_folder)
+    index = 1
+    os.chdir(path_img)
+    for html_file in html_file_list:
+        # print("html name : {}".format(html_file))
+        filename = html_file.split('/')
+        # get the name into the right format
+        temp_name = "{}/{}".format(path_html, filename[3])
+        # print("temp_name : {}".format(temp_name))
 
-def image2dataset(input):
+        # print("html name : {}".format(filename))
+        pngfile = "{}/{}.png".format(path_img, filename[3][:-5])
+
+        print("convert {} to {}".format(temp_name,pngfile))
+        imgkit.from_file(temp_name, pngfile)
+    # crop only take the content
+    # subprocess.call('find . -maxdepth 1 -iname "*.png" | xargs -L1 -I{} convert -crop 700x458+0+0 "{}" "{}"', shell=True)
+    imgsize = "{}x{}!".format(dim,dim)
+    subprocess.call('find . -maxdepth 1 -iname "*.png" | xargs -L1 -I{} convert -flatten +matte -adaptive-resize '+ str(imgsize) +' "{}" "{}"', shell=True)
+    # subprocess.call('convert rgb10.png -pointsize 50 -draw "text 180,180 ' + str(tempo) + '" rgb10-n.png', shell=True)
+
+def image2dataset(input, label_file):
 
     label_dict = {}
-    with open("FTSE_label.txt") as f:
+    with open(label_file) as f:
         for line in f:
             (key, val) = line.split(',')
             label_dict[key] = val.rstrip()
@@ -64,36 +98,36 @@ def image2dataset(input):
         print(os.getcwd())
         if filename is not '':
             label = list(label_dict.values())[
-                list(label_dict.keys()).index("{}".format(filename[:-9]))]
+                list(label_dict.keys()).index("{}".format(filename[:-4]))]
             # name = list(label_dict.keys())[list(label_dict.values()).index("{}".format(label))]
             #print("name : {}".format(name))
             # print(filename)
-            new_name = "{}{}.png".format(label, filename[:-9])
+            new_name = "{}{}.png".format(label, filename[:-4])
             print("rename {} to {}".format(filename, new_name))
-            # os.rename("{}/{}".format(path,filename), "{}/{}".format(path,new_name))
+            os.rename("{}/{}".format(path,filename), "{}/{}".format(path,new_name))
 
-    # folders = ['A','B','C','D','E','F','G']
-    # for folder in folders:
-    #     if not os.path.exists("{}/classes/{}".format(path,folder)):
-    #         os.makedirs("{}/classes/{}".format(path,folder))
-    #
-    # for filename in os.listdir(input):
-    #     if filename is not '':
-    #         # print(filename[:1])
-    #         if filename[:1] == "A":
-    #             copyfile("{}/{}".format(path,filename), "{}/classes/A/{}".format(path,filename))
-    #         elif filename[:1] == "B":
-    #             copyfile("{}/{}".format(path,filename), "{}/classes/B/{}".format(path,filename))
-    #         elif filename[:1] == "C":
-    #             copyfile("{}/{}".format(path,filename), "{}/classes/C/{}".format(path,filename))
-    #         elif filename[:1] == "D":
-    #             copyfile("{}/{}".format(path,filename), "{}/classes/D/{}".format(path,filename))
-    #         elif filename[:1] == "E":
-    #             copyfile("{}/{}".format(path,filename), "{}/classes/E/{}".format(path,filename))
-    #         elif filename[:1] == "F":
-    #             copyfile("{}/{}".format(path,filename), "{}/classes/F/{}".format(path,filename))
-    #         elif filename[:1] == "G":
-    #             copyfile("{}/{}".format(path,filename), "{}/classes/G/{}".format(path,filename))
+    folders = ['A','B','C','D','E','F','G']
+    for folder in folders:
+        if not os.path.exists("{}/classes/{}".format(path,folder)):
+            os.makedirs("{}/classes/{}".format(path,folder))
+
+    for filename in os.listdir(input):
+        if filename is not '':
+            # print(filename[:1])
+            if filename[:1] == "A":
+                copyfile("{}/{}".format(path,filename), "{}/classes/A/{}".format(path,filename))
+            elif filename[:1] == "B":
+                copyfile("{}/{}".format(path,filename), "{}/classes/B/{}".format(path,filename))
+            elif filename[:1] == "C":
+                copyfile("{}/{}".format(path,filename), "{}/classes/C/{}".format(path,filename))
+            elif filename[:1] == "D":
+                copyfile("{}/{}".format(path,filename), "{}/classes/D/{}".format(path,filename))
+            elif filename[:1] == "E":
+                copyfile("{}/{}".format(path,filename), "{}/classes/E/{}".format(path,filename))
+            elif filename[:1] == "F":
+                copyfile("{}/{}".format(path,filename), "{}/classes/F/{}".format(path,filename))
+            elif filename[:1] == "G":
+                copyfile("{}/{}".format(path,filename), "{}/classes/G/{}".format(path,filename))
 
 
 def createLabel(fname, seq_len):
@@ -148,7 +182,7 @@ def createLabel(fname, seq_len):
         if perct > 4.3:
             label = "G"
         # print("{},{}-{}".format(perct, fname[12:-4], i))
-        with open("{}_label.txt".format(fname[12:-4]), 'a') as the_file:
+        with open("{}_label_{}.txt".format(fname[12:-4],seq_len), 'a') as the_file:
             the_file.write("{}-{},{}".format(fname[12:-4], i, label))
             the_file.write("\n")
 
@@ -159,7 +193,12 @@ def countImage(input):
     print("num of files : {}\nnum of dir : {}".format(num_file, num_dir))
 
 
-def convert2image(fname, seq_len):
+def olhc2cs(fname, seq_len):
+    path = "{}".format(os.getcwd())
+    print(path)
+    if not os.path.exists("{}/dataset/{}/html/".format(path,seq_len)):
+        os.makedirs("{}/dataset/{}/html/".format(path,seq_len))
+        os.makedirs("{}/dataset/{}/img/".format(path,seq_len))
     # import plotly.graph_objs as go
     #py.sign_in('rosdyana', 'eVtlDykeB8gMHmp6y4Ff')
     # read stock data
@@ -188,8 +227,8 @@ def convert2image(fname, seq_len):
         })
         #plot_mpl(fig, image='png')
         #py.image.save_as(fig, filename='dataset/images/{}.png'.format(i))
-        offline.plot(fig, filename='dataset/images/{}-{}.html'.format(fname[12:-4], i),
-                     image='png', auto_open=False, show_link=False, image_filename='dataset/images/{}-{}.png'.format(fname[11:-4], i))
+        offline.plot(fig, filename='dataset/{}/html/{}-{}.html'.format(seq_len,fname[12:-4], i),
+                     image='png', auto_open=False, show_link=False, image_filename='dataset/html/{}/{}-{}.png'.format(seq_len,fname[11:-4], i))
 
 
     # imagemagic script to resize img
