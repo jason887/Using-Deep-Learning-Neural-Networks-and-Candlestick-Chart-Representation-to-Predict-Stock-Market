@@ -1,4 +1,4 @@
-python preprocess.py -m olhc2cs -i stockdatas/^FTSE.csv -l 5 
+python preprocess.py -i stockdatas/^FTSE.csv -l 5 -m convert2image
 
 python preprocess.py -m createLabel -i stockdatas/^FTSE.csv -l 5
 
