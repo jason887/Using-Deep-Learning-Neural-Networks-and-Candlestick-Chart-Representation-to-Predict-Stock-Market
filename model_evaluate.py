@@ -1,8 +1,8 @@
 # import tensorflow as tf # uncomment this for using GPU
-import os
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # comment this for using GPU
-os.environ["CUDA_VISIBLE_DEVICES"] = ""  # change with 1 for using GPU
-# uncomment below for using GPU
+# import os
+# os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # comment this for using GPU
+# os.environ["CUDA_VISIBLE_DEVICES"] = "0"  # change with 1 for using GPU
+# # uncomment below for using GPU
 # config = tf.ConfigProto()
 # # maximun alloc gpu50% of MEM
 # config.gpu_options.per_process_gpu_memory_fraction = 0.5
@@ -60,6 +60,8 @@ def main():
                         help='a image channel', type=int, default=3)
     parser.add_argument('-md', '--model_name',
                         help='a model name', type=str, required=True)
+    parser.add_argument('-o', '--output',
+                        help='a result file', type=str, default="output.txt")
     args = parser.parse_args()
     # dimensions of our images.
     img_width, img_height = args.dimension, args.dimension
@@ -86,6 +88,17 @@ def main():
     print('Overall Test accuracy: {}'.format(test_score[1]))
     end_time = time.monotonic()
     print("Duration : {}".format(timedelta(seconds=end_time - start_time)))
+
+    f_output = open(args.output,'a')
+    f_output.write('=======\n')
+    f_output.write('{}\n'.format(args.model_name))
+    f_output.write('Overall Train score: {}\n'.format(train_score[0]))
+    f_output.write('Overall Train accuracy: {}\n'.format(train_score[1]))
+    f_output.write('Overall Test score: {}\n'.format(test_score[0]))
+    f_output.write('Overall Test accuracy: {}\n'.format(test_score[1]))
+    f_output.write("Duration : {}".format(timedelta(seconds=end_time - start_time)))
+    f_output.write('=======\n')
+    f_output.close()
 
 if __name__ == "__main__":
     main()

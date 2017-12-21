@@ -39,11 +39,13 @@ def main():
                         help='a label_file')
     parser.add_argument('-d', '--dimension',
                         help='a dimension value')
+    parser.add_argument('-t', '--dataset_type',
+                        help='training or testing datasets')
     parser.add_argument('-m', '--mode',
                         help='mode of preprocessing data', required=True)
     args = parser.parse_args()
     if args.mode == 'olhc2cs':
-        olhc2cs(args.input, args.seq_len)
+        olhc2cs(args.input, args.seq_len, args.dataset_type)
     if args.mode == 'createLabel':
         createLabel(args.input, args.seq_len)
     if args.mode == 'img2dt':
@@ -65,11 +67,11 @@ def html2img(input, dim):
         # print("html name : {}".format(html_file))
         filename = html_file.split('/')
         # get the name into the right format
-        temp_name = "{}/{}".format(path_html, filename[3])
+        temp_name = "{}/{}".format(path_html, filename[4])
         # print("temp_name : {}".format(temp_name))
 
         # print("html name : {}".format(filename))
-        pngfile = "{}/{}.png".format(path_img, filename[3][:-5])
+        pngfile = "{}/{}.png".format(path_img, filename[4][:-5])
 
         print("convert {} to {}".format(temp_name,pngfile))
         imgkit.from_file(temp_name, pngfile)
@@ -193,12 +195,13 @@ def countImage(input):
     print("num of files : {}\nnum of dir : {}".format(num_file, num_dir))
 
 
-def olhc2cs(fname, seq_len):
+def olhc2cs(fname, seq_len, dataset_type):
+    print("Converting olhc to candlestick")
     path = "{}".format(os.getcwd())
     print(path)
-    if not os.path.exists("{}/dataset/{}/html/".format(path,seq_len)):
-        os.makedirs("{}/dataset/{}/html/".format(path,seq_len))
-        os.makedirs("{}/dataset/{}/img/".format(path,seq_len))
+    if not os.path.exists("{}/dataset/{}/{}/html/".format(path,seq_len),dataset_type):
+        os.makedirs("{}/dataset/{}/{}/html/".format(path,seq_len,dataset_type))
+        os.makedirs("{}/dataset/{}/{}/img/".format(path,seq_len,dataset_type))
     # import plotly.graph_objs as go
     #py.sign_in('rosdyana', 'eVtlDykeB8gMHmp6y4Ff')
     # read stock data
@@ -227,8 +230,8 @@ def olhc2cs(fname, seq_len):
         })
         #plot_mpl(fig, image='png')
         #py.image.save_as(fig, filename='dataset/images/{}.png'.format(i))
-        offline.plot(fig, filename='dataset/{}/html/{}-{}.html'.format(seq_len,fname[12:-4], i),
-                     image='png', auto_open=False, show_link=False, image_filename='dataset/html/{}/{}-{}.png'.format(seq_len,fname[11:-4], i))
+        offline.plot(fig, filename='dataset/{}/{}/html/{}-{}.html'.format(seq_len,dataset_typename[12:-4], i),
+                     image='png', auto_open=False, show_link=False, image_filename='{}-{}.png'.format(fname[11:-4], i))
 
 
     # imagemagic script to resize img
