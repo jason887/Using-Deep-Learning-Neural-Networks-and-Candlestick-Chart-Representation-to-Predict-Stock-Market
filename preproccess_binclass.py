@@ -1,5 +1,6 @@
 import pandas as pd
 import plotly.offline as offline
+import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.finance import *
 import matplotlib.dates as mdates
@@ -13,8 +14,10 @@ import decimal
 from shutil import copyfile, move
 
 import imgkit
-
 import subprocess
+# https://github.com/matplotlib/mpl_finance
+from mpl_finance import candlestick_ochl as candlestick
+from mpl_finance import volume_overlay3
 
 def drange(x, y, jump):
     while x < y:
@@ -135,16 +138,39 @@ def ohlc2cs(fname, seq_len, dataset_type):
     for i in range(0, len(df)):
         c = df.ix[i:i+int(seq_len)-1,:]
         if len(c) == int(seq_len):
-            fig = plt.figure(figsize=(2.5974025974,3.1746031746))
+            # Date,Open,High,Low,Adj Close,Volume
+            candlesticks = zip(c['Date'], c['Open'], c['Adj Close'], c['Low'], c['High'], c['Volume'])
+            # fig = plt.figure(figsize=(2.5974025974,3.1746031746))
+            fig = plt.figure(figsize=(500, 600), dpi=1)
+            #ax1 = plt.subplot2grid((6,1), (0,0), rowspan=5, colspan=1, axisbg = 'black')
+            ax = fig.add_subplot(1,1,1)
+            candlestick(ax, candlesticks, width=1, colorup='green', colordown='red')
+            ax.set_xticklabels([])
+            ax.set_yticklabels([])
 
-            ax1 = plt.subplot2grid((6,1), (0,0), rowspan=5, colspan=1, axisbg = 'black')
-            candlestick_ohlc(ax1, c.values, colorup='g', colordown='r')
-            ax1.set_xticklabels([])
-            ax1.set_yticklabels([])
-            ax1.tick_params(axis=u'both', which=u'both',length=0)
+            # ax.tick_params(axis=u'both', which=u'both',length=0)
+            pad = 0.25
+            yl = ax.get_ylim()
+            ax.set_ylim(yl[0]-(yl[1]-yl[0])*pad,yl[1])
+            ax2 = ax.twinx()
+            ax2.set_position(matplotlib.transforms.Bbox([[0.125,0.1],[0.9,0.32]]))
+            #dates = [x[0] for x in candlesticks]
+            dates = np.asarray(c['Date'])
+            #volume = [x[5] for x in candlesticks]
+            volume = np.asarray(c['Volume'])
+            # print("dates : {} - volume : {}".format(dates,volume))
+            pos = c['Open']-c['Adj Close']<0
+            neg = c['Open']-c['Adj Close']>0
+            # print("neg : {} - pos : {}".format(neg, pos))
+            ax2.bar(dates[pos],volume[pos],color='green',width=1,align='center')
+            ax2.bar(dates[neg],volume[neg],color='red',width=1,align='center')
+            # ax2.set_xlim(min(dates),max(dates))
+            ax2.set_xticklabels([])
+            ax2.set_yticklabels([])
             pngfile='dataset/{}/{}/{}-{}.png'.format(seq_len,dataset_type,fname[11:-4], i)
             print("{}".format(pngfile))
-            fig.savefig(pngfile,bbox_inches='tight', pad_inches=0)
+            extent = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+            fig.savefig(pngfile, bbox_inches=extent, pad_inches=0)
             plt.close(fig)
 
 if __name__ == '__main__':
