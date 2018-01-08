@@ -1,18 +1,18 @@
-from keras import backend as K
-cfg = K.tf.ConfigProto()
-cfg.gpu_options.allow_growth = True
-K.set_session(K.tf.Session(config=cfg))
-
-import tensorflow as tf  # uncomment this for using GPU
-import os
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-config = tf.ConfigProto()
-# maximun alloc gpu50% of MEM
-config.gpu_options.per_process_gpu_memory_fraction = 0.5
-# allocate dynamically
-config.gpu_options.allow_growth = True
-sess = tf.Session(config=config)
+# from keras import backend as K
+# cfg = K.tf.ConfigProto()
+# cfg.gpu_options.allow_growth = True
+# K.set_session(K.tf.Session(config=cfg))
+#
+# import tensorflow as tf  # uncomment this for using GPU
+# import os
+# os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+# config = tf.ConfigProto()
+# # maximun alloc gpu50% of MEM
+# config.gpu_options.per_process_gpu_memory_fraction = 0.5
+# # allocate dynamically
+# config.gpu_options.allow_growth = True
+# sess = tf.Session(config=config)
 
 import math
 import json
@@ -41,15 +41,17 @@ def build_dataset(data_directory, img_width):
     nb_classes = len(tags)
 
     sample_count = len(y)
-    train_size = sample_count * 4 // 5
-    print("train size : {}".format(train_size))
-    X_train = X[:train_size]
-    y_train = y[:train_size]
-    Y_train = np_utils.to_categorical(y_train, nb_classes)
-    X_test = X[train_size:]
-    y_test = y[train_size:]
-    Y_test = np_utils.to_categorical(y_test, nb_classes)
-    return X_train, Y_train, X_test, Y_test, nb_classes
+    print("number class : {}".format(nb_classes))
+    print("sample count : {}".format(sample_count))
+    # data_size = sample_count #* 4 // 5
+    # # print("data size : {}".format(data_size))
+    # X_train = X[:data_size]
+    # y_train = y[:data_size]
+    # Y_train = np_utils.to_categorical(y_train, nb_classes)
+    # X_test  = X[data_size:]
+    # y_test  = y[data_size:]
+    # Y_test = np_utils.to_categorical(y_test, nb_classes)
+    return X,y,sample_count,nb_classes
 
 
 def identity_block(input_tensor, kernel_size, filters, stage, block):
@@ -202,8 +204,10 @@ def main():
                         help='num of epochs', type=int, default=10)
     parser.add_argument('-b', '--batch_size',
                         help='num of batch_size', type=int, default=64)
-    parser.add_argument('-o', '--optimizer',
+    parser.add_argument('-op', '--optimizer',
                         help='choose the optimizer (rmsprop, adagrad, adadelta, adam, adamax, nadam)', default="adam")
+    parser.add_argument('-o', '--output',
+                        help='output file report for result', default="output.txt")
     args = parser.parse_args()
     # dimensions of our images.
     img_width, img_height = args.dimension, args.dimension
@@ -223,23 +227,58 @@ def main():
     data_directory = args.input
     period_name = data_directory.split('/')
 
-    print("loading dataset")
-    X_train, Y_train, X_test, Y_test, nb_classes = build_dataset(
-        data_directory, args.dimension)
-    print("number of classes : {}".format(nb_classes))
+    #
+    # data_size = sample_count #* 4 // 5
+    # # print("data size : {}".format(data_size))
+    # X_train = X[:data_size]
+    # y_train = y[:data_size]
+    # Y_train = np_utils.to_categorical(y_train, nb_classes)
+    # X_test  = X[data_size:]
+    # y_test  = y[data_size:]
+    # Y_test = np_utils.to_categorical(y_test, nb_classes)
+
+
+    training_dir = "{}/training".format(data_directory)
+    test_dir = "{}/testing".format(data_directory)
+    print ("loading training dataset")
+    Xtrain, ytrain, train_count, nb_classes = build_dataset(training_dir, args.dimension)
+    X_train = Xtrain[:train_count]
+    y_train = ytrain[:train_count]
+    Y_train = np_utils.to_categorical(y_train, nb_classes)
+
+    print ("loading testing dataset")
+    Xtest, ytest, test_count, test_class = build_dataset(test_dir, args.dimension)
+    X_test  = Xtest[:test_count]
+    y_test  = ytest[:test_count]
+    Y_test = np_utils.to_categorical(y_test, test_class)
 
     model = build_model(img_input, nb_classes, bn_axis)
 
-    model.compile(optimizer=args.optimizer,
-                  loss='categorical_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer=args.optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
 
     # Fit the model
     model.fit(X_train, Y_train, batch_size=batch_size, epochs=epochs)
 
     # Save Model or creates a HDF5 file
-    model.save('{}epochs_{}period_{}dimension_resnet182_{}.h5'.format(
-        epochs, period_name[1], args.dimension, args.optimizer), overwrite=True)
-    # del model  # deletes the existing model
+    model.save('{}epochs_{}period_{}dimension_resnet182_{}.h5'.format(epochs,period_name[1],args.dimension,args.optimizer), overwrite=True)
+
+    train_score = model.evaluate(X_train, Y_train, verbose=1)
+    print('Overall Train score: {}'.format(train_score[0]))
+    print('Overall Train accuracy: {}'.format(train_score[1]))
+
+    test_score = model.evaluate(X_test, Y_test, verbose=1)
+    print('Overall Test score: {}'.format(test_score[0]))
+    print('Overall Test accuracy: {}'.format(test_score[1]))
+
+    f_output = open(args.output,'a')
+    f_output.write('=======\n')
+    f_output.write('{}epochs_{}period_{}dimension_resnet182_{}.h5\n'.format(epochs,period_name[1],args.dimension,args.optimizer))
+    f_output.write('Overall Train score: {}\n'.format(train_score[0]))
+    f_output.write('Overall Train accuracy: {}\n'.format(train_score[1]))
+    f_output.write('Overall Test score: {}\n'.format(test_score[0]))
+    f_output.write('Overall Test accuracy: {}\n'.format(test_score[1]))
+    f_output.write('=======\n')
+    f_output.close()
 
     end_time = time.monotonic()
     print("Duration : {}".format(timedelta(seconds=end_time - start_time)))

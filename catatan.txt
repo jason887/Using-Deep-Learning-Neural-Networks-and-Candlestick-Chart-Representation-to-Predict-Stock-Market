@@ -1,4 +1,6 @@
-python preprocess.py -i stockdatas/^FTSE.csv -l 5 -m convert2image
+python get_data.py -sd 2017-01-01 -t ^FTSE -s yahoo
+
+python preprocess.py -i stockdatas/^FTSE.csv -l 5 -m olhc2cs
 
 python preprocess.py -m createLabel -i stockdatas/^FTSE.csv -l 5
 

@@ -1,14 +1,13 @@
-# import tensorflow as tf # uncomment this for using GPU
+import tensorflow as tf
 import os
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # comment this for using GPU
-os.environ["CUDA_VISIBLE_DEVICES"] = ""  # change with 1 for using GPU
-# uncomment below for using GPU
-# config = tf.ConfigProto()
-# # maximun alloc gpu50% of MEM
-# config.gpu_options.per_process_gpu_memory_fraction = 0.5
-# #allocate dynamically
-# config.gpu_options.allow_growth = True
-# sess = tf.Session(config = config)
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+config = tf.ConfigProto()
+# maximun alloc gpu50% of MEM
+# config.gpu_options.per_process_gpu_memory_fraction = 0.2
+#allocate dynamically
+config.gpu_options.allow_growth = True
+sess = tf.Session(config = config)
 
 import math, json, os, sys
 
@@ -17,7 +16,6 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.models import Model
 from keras.optimizers import Adam
 from keras.preprocessing import image
-from keras.applications.resnet50 import conv_block, identity_block
 from keras.layers import (Activation, BatchNormalization, Convolution2D, Dense,
                           Flatten, Input, MaxPooling2D, ZeroPadding2D, AveragePooling2D)
 from keras import backend as K
@@ -36,15 +34,96 @@ def build_dataset(data_directory, img_width):
     nb_classes = len(tags)
 
     sample_count = len(y)
-    train_size = sample_count * 4 // 5
-    print("train size : {}".format(train_size))
-    X_train = X[:train_size]
-    y_train = y[:train_size]
-    Y_train = np_utils.to_categorical(y_train, nb_classes)
-    X_test  = X[train_size:]
-    y_test  = y[train_size:]
-    Y_test = np_utils.to_categorical(y_test, nb_classes)
-    return X_train, Y_train, X_test, Y_test, nb_classes
+    print("number class : {}".format(nb_classes))
+    print("sample count : {}".format(sample_count))
+    # data_size = sample_count #* 4 // 5
+    # # print("data size : {}".format(data_size))
+    # X_train = X[:data_size]
+    # y_train = y[:data_size]
+    # Y_train = np_utils.to_categorical(y_train, nb_classes)
+    # X_test  = X[data_size:]
+    # y_test  = y[data_size:]
+    # Y_test = np_utils.to_categorical(y_test, nb_classes)
+    return X,y,sample_count,nb_classes
+
+def identity_block(input_tensor, kernel_size, filters, stage, block):
+    '''The identity_block is the block that has no conv layer at shortcut
+    # Arguments
+        input_tensor: input tensor
+        kernel_size: defualt 3, the kernel size of middle conv layer at main path
+        filters: list of integers, the nb_filters of 3 conv layer at main path
+        stage: integer, current stage label, used for generating layer names
+        block: 'a','b'..., current block label, used for generating layer names
+    '''
+
+    nb_filter1, nb_filter2, nb_filter3 = filters
+    conv_name_base = 'res' + str(stage) + block + '_branch'
+    bn_name_base = 'bn' + str(stage) + block + '_branch'
+
+    x = Conv2D(nb_filter1, (1, 1), name=conv_name_base +
+               '2a', use_bias=False)(input_tensor)
+    x = BatchNormalization(axis=bn_axis,
+                           name=bn_name_base + '2a')(x)
+    x = Activation('relu', name=conv_name_base + '2a_relu')(x)
+
+    x = ZeroPadding2D((1, 1), name=conv_name_base + '2b_zeropadding')(x)
+    x = Conv2D(nb_filter2, (kernel_size, kernel_size),
+               name=conv_name_base + '2b', use_bias=False)(x)
+    x = BatchNormalization(axis=bn_axis,
+                           name=bn_name_base + '2b')(x)
+    x = Activation('relu', name=conv_name_base + '2b_relu')(x)
+
+    x = Conv2D(nb_filter3, (1, 1), name=conv_name_base +
+               '2c', use_bias=False)(x)
+    x = BatchNormalization(axis=bn_axis,
+                           name=bn_name_base + '2c')(x)
+
+    x = add([x, input_tensor], name='res' + str(stage) + block)
+    x = Activation('relu', name='res' + str(stage) + block + '_relu')(x)
+    return x
+
+
+def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2)):
+    '''conv_block is the block that has a conv layer at shortcut
+    # Arguments
+        input_tensor: input tensor
+        kernel_size: defualt 3, the kernel size of middle conv layer at main path
+        filters: list of integers, the nb_filters of 3 conv layer at main path
+        stage: integer, current stage label, used for generating layer names
+        block: 'a','b'..., current block label, used for generating layer names
+    Note that from stage 3, the first conv layer at main path is with subsample=(2,2)
+    And the shortcut should have subsample=(2,2) as well
+    '''
+
+    nb_filter1, nb_filter2, nb_filter3 = filters
+    conv_name_base = 'res' + str(stage) + block + '_branch'
+    bn_name_base = 'bn' + str(stage) + block + '_branch'
+
+    x = Conv2D(nb_filter1, (1, 1), strides=strides,
+               name=conv_name_base + '2a', use_bias=False)(input_tensor)
+    x = BatchNormalization(axis=bn_axis,
+                           name=bn_name_base + '2a')(x)
+    x = Activation('relu', name=conv_name_base + '2a_relu')(x)
+
+    x = ZeroPadding2D((1, 1), name=conv_name_base + '2b_zeropadding')(x)
+    x = Conv2D(nb_filter2, (kernel_size, kernel_size),
+               name=conv_name_base + '2b', use_bias=False)(x)
+    x = BatchNormalization(axis=bn_axis,
+                           name=bn_name_base + '2b')(x)
+    x = Activation('relu', name=conv_name_base + '2b_relu')(x)
+
+    x = Conv2D(nb_filter3, (1, 1), name=conv_name_base +
+               '2c', use_bias=False)(x)
+    x = BatchNormalization(axis=bn_axis,
+                           name=bn_name_base + '2c')(x)
+
+    shortcut = Conv2D(nb_filter3, (1, 1), strides=strides,
+                      name=conv_name_base + '1', use_bias=False)(input_tensor)
+    shortcut = BatchNormalization(axis=bn_axis, name=bn_name_base + '1')(shortcut)
+
+    x = add([x, shortcut], name='res' + str(stage) + block)
+    x = Activation('relu', name='res' + str(stage) + block + '_relu')(x)
+    return x
 
 def build_model(SHAPE,nb_classes,bn_axis,seed=None):
     # We can't use ResNet50 directly, as it might cause a negative dimension
@@ -100,8 +179,10 @@ def main():
                         help='num of epochs', type=int, default=10)
     parser.add_argument('-b', '--batch_size',
                         help='num of batch_size', type=int, default=64)
-    parser.add_argument('-o', '--optimizer',
+    parser.add_argument('-op', '--optimizer',
                         help='choose the optimizer (rmsprop, adagrad, adadelta, adam, adamax, nadam)', default="adam")
+    parser.add_argument('-o', '--output',
+                        help='output file report for result', default="output.txt")
     args = parser.parse_args()
     # dimensions of our images.
     img_width, img_height = args.dimension, args.dimension
@@ -115,9 +196,19 @@ def main():
     data_directory = args.input
     period_name = data_directory.split('/')
 
-    print ("loading dataset")
-    X_train, Y_train, X_test, Y_test, nb_classes= build_dataset(data_directory, args.dimension)
-    print("number of classes : {}".format(nb_classes))
+    training_dir = "{}/training".format(data_directory)
+    test_dir = "{}/testing".format(data_directory)
+    print ("loading training dataset")
+    Xtrain, ytrain, sample_count, nb_classes = build_dataset(training_dir, args.dimension)
+    X_train = Xtrain[:sample_count]
+    y_train = ytrain[:sample_count]
+    Y_train = np_utils.to_categorical(y_train, nb_classes)
+
+    print ("loading testing dataset")
+    Xtest, ytest, sample_count, test_class = build_dataset(test_dir, args.dimension)
+    X_test  = Xtest[:sample_count]
+    y_test  = ytest[:sample_count]
+    Y_test = np_utils.to_categorical(y_test, test_class)
 
     model = build_model(SHAPE,nb_classes,bn_axis)
 
@@ -127,8 +218,25 @@ def main():
     model.fit(X_train, Y_train, batch_size=batch_size, epochs=epochs)
 
     # Save Model or creates a HDF5 file
-    model.save('{}epochs_{}period_{}dimension_resnet18_model.h5'.format(epochs,period_name[2],period_name[1]), overwrite=True)
-    #del model  # deletes the existing model
+    model.save('{}epochs_{}period_{}dimension_resnet18_{}.h5'.format(epochs,period_name[1],args.dimension,args.optimizer), overwrite=True)
+
+    train_score = model.evaluate(X_train, Y_train, verbose=1)
+    print('Overall Train score: {}'.format(train_score[0]))
+    print('Overall Train accuracy: {}'.format(train_score[1]))
+
+    test_score = model.evaluate(X_test, Y_test, verbose=1)
+    print('Overall Test score: {}'.format(test_score[0]))
+    print('Overall Test accuracy: {}'.format(test_score[1]))
+
+    f_output = open(args.output,'a')
+    f_output.write('=======\n')
+    f_output.write('{}epochs_{}period_{}dimension_resnet18_{}.h5\n'.format(epochs,period_name[1],args.dimension,args.optimizer))
+    f_output.write('Overall Train score: {}\n'.format(train_score[0]))
+    f_output.write('Overall Train accuracy: {}\n'.format(train_score[1]))
+    f_output.write('Overall Test score: {}\n'.format(test_score[0]))
+    f_output.write('Overall Test accuracy: {}\n'.format(test_score[1]))
+    f_output.write('=======\n')
+    f_output.close()
 
     end_time = time.monotonic()
     print("Duration : {}".format(timedelta(seconds=end_time - start_time)))
