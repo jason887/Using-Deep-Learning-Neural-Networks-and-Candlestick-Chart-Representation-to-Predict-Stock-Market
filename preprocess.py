@@ -1,6 +1,9 @@
 import pandas as pd
 import plotly.offline as offline
+import matplotlib
 import matplotlib.pyplot as plt
+from matplotlib.finance import *
+import matplotlib.dates as mdates
 from plotly.tools import FigureFactory as FF
 # from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 # offline.init_notebook_mode()
@@ -8,17 +11,13 @@ import glob
 import argparse
 import os
 import decimal
-from shutil import copyfile
+from shutil import copyfile, move
 
 import imgkit
-
 import subprocess
-
-def drange(x, y, jump):
-    while x < y:
-        yield float(x)
-        x += decimal.Decimal(jump)
-
+# https://github.com/matplotlib/mpl_finance
+from mpl_finance import candlestick_ochl as candlestick
+from mpl_finance import volume_overlay3
 
 def isnan(value):
     try:
@@ -26,7 +25,6 @@ def isnan(value):
         return math.isnan(float(value))
     except:
         return False
-
 
 def main():
     parser = argparse.ArgumentParser(
@@ -44,42 +42,14 @@ def main():
     parser.add_argument('-m', '--mode',
                         help='mode of preprocessing data', required=True)
     args = parser.parse_args()
-    if args.mode == 'olhc2cs':
-        olhc2cs(args.input, args.seq_len, args.dataset_type)
+    if args.mode == 'ohlc2cs':
+        ohlc2cs(args.input, args.seq_len, args.dataset_type)
     if args.mode == 'createLabel':
         createLabel(args.input, args.seq_len)
     if args.mode == 'img2dt':
         image2dataset(args.input, args.label_file)
     if args.mode == 'countImg':
         countImage(args.input)
-    if args.mode == 'html2img':
-        html2img(args.input, args.dimension)
-
-def html2img(input, dim):
-    # get a list of all the files to open
-    glob_folder = os.path.join("{}/html".format(input), '*.html')
-    path_html = "{}/{}/html".format(os.getcwd(),input)
-    path_img = "{}/{}/img".format(os.getcwd(),input)
-    html_file_list = glob.glob(glob_folder)
-    index = 1
-    os.chdir(path_img)
-    for html_file in html_file_list:
-        # print("html name : {}".format(html_file))
-        filename = html_file.split('/')
-        # get the name into the right format
-        temp_name = "{}/{}".format(path_html, filename[4])
-        # print("temp_name : {}".format(temp_name))
-
-        # print("html name : {}".format(filename))
-        pngfile = "{}/{}.png".format(path_img, filename[4][:-5])
-
-        print("convert {} to {}".format(temp_name,pngfile))
-        imgkit.from_file(temp_name, pngfile)
-    # crop only take the content
-    # subprocess.call('find . -maxdepth 1 -iname "*.png" | xargs -L1 -I{} convert -crop 700x458+0+0 "{}" "{}"', shell=True)
-    imgsize = "{}x{}!".format(dim,dim)
-    subprocess.call('find . -maxdepth 1 -iname "*.png" | xargs -L1 -I{} convert -flatten +matte -adaptive-resize '+ str(imgsize) +' "{}" "{}"', shell=True)
-    # subprocess.call('convert rgb10.png -pointsize 50 -draw "text 180,180 ' + str(tempo) + '" rgb10-n.png', shell=True)
 
 def image2dataset(input, label_file):
 
@@ -108,7 +78,7 @@ def image2dataset(input, label_file):
             print("rename {} to {}".format(filename, new_name))
             os.rename("{}/{}".format(path,filename), "{}/{}".format(path,new_name))
 
-    folders = ['A','B','C','D','E','F','G']
+    folders = ['A','B','C','D']
     for folder in folders:
         if not os.path.exists("{}/classes/{}".format(path,folder)):
             os.makedirs("{}/classes/{}".format(path,folder))
@@ -124,69 +94,52 @@ def image2dataset(input, label_file):
                 copyfile("{}/{}".format(path,filename), "{}/classes/C/{}".format(path,filename))
             elif filename[:1] == "D":
                 copyfile("{}/{}".format(path,filename), "{}/classes/D/{}".format(path,filename))
-            elif filename[:1] == "E":
-                copyfile("{}/{}".format(path,filename), "{}/classes/E/{}".format(path,filename))
-            elif filename[:1] == "F":
-                copyfile("{}/{}".format(path,filename), "{}/classes/F/{}".format(path,filename))
-            elif filename[:1] == "G":
-                copyfile("{}/{}".format(path,filename), "{}/classes/G/{}".format(path,filename))
-
 
 def createLabel(fname, seq_len):
-    # import plotly.graph_objs as go
-    #py.sign_in('rosdyana', 'eVtlDykeB8gMHmp6y4Ff')
-    # read stock data
-    df = pd.read_csv(fname, header=None, index_col=0)
-    df = df[4]
+    # python preprocess.py -m createLabel -l 20 -i stockdatas/EWT_training5.csv
+    print("Creating label . . .")
+    # remove existing label file
+    filename = fname.split('/')
+    # print("{} - {}".format(filename[0], filename[1][:-4]))
+    if os.path.exists("{}_label_{}.txt".format(filename[1][:-4],seq_len)):
+        os.remove("{}_label_{}.txt".format(filename[1][:-4],seq_len))
+
+    df = pd.read_csv(fname, parse_dates=True, index_col=0)
     df.fillna(0)
-    # df = df.astype(str)
-    # separators = pd.DataFrame(', ', df.index, df.columns[:-1])
-    # separators[df.columns[-1]] = '\n'
-    # print (df + separators).sum(axis=1).sum()
 
-    data = df[1:]
-    # print(data)
-
-    for i in range(0, len(data), int(seq_len)):
-        #print("idx : {}".format(i))
-        c = data[i:i + int(seq_len)]
-        # print(len(c))
+    df.reset_index(inplace=True)
+    df['Date'] = df['Date'].map(mdates.date2num)
+    for i in range(0, len(df)):
+        c = df.ix[i:i+int(seq_len)-1,:]
         starting = 0
         endvalue = 0
         label = ""
-        for idx, val in enumerate(c):
-            if idx == 0:
-                starting = float(val)
-            if idx == len(c) - 1:
-                endvalue = float(val)
-        sizeincrease = endvalue - starting
-        diff = sizeincrease / starting
-        perct = diff * 100
-        if isnan(perct):
-            perct = 0
-        if perct < -1.5:
-            label = "A"
-        if perct > -1.5 and perct < -0.5:
-            # if perct in range(-1.5, -0.5):
-            label = "B"
-        if perct > -0.5 and perct < 0.4:
-            # if perct in range(-0.5, 0.4):
-            label = "C"
-        if perct > 0.4 and perct < 1.4:
-            # if perct in range(0.4, 1.4):
-            label = "D"
-        if perct > 1.4 and perct < 2.5:
-            # if perct in range(1.4, 2.5):
-            label = "E"
-        if perct > 2.5 and perct < 4.3:
-            # if perct in range(2.5, 4.3):
-            label = "F"
-        if perct > 4.3:
-            label = "G"
-        # print("{},{}-{}".format(perct, fname[12:-4], i))
-        with open("{}_label_{}.txt".format(fname[12:-4],seq_len), 'a') as the_file:
-            the_file.write("{}-{},{}".format(fname[12:-4], i, label))
-            the_file.write("\n")
+        if len(c) == int(seq_len):
+            for idx, val in enumerate(c['Adj Close']):
+                if idx == 0:
+                    starting = float(val)
+                if idx == len(c) - 1:
+                    endvalue = float(val)
+            sizeincrease = endvalue - starting
+            diff = sizeincrease / starting
+            perct = diff * 100
+            # print(perct)
+            if isnan(perct):
+                perct = 0
+            if perct < -1.5:
+                label = "A"
+            if perct >= -1.5 and perct < 1.5:
+                # if perct in range(-1.5, -0.5):
+                label = "B"
+            if perct >= 1.5 and perct < 4.5:
+                # if perct in range(1.4, 2.5):
+                label = "C"
+            if perct >= 4.5:
+                label = "D"
+            with open("{}_label_{}.txt".format(filename[1][:-4],seq_len), 'a') as the_file:
+                the_file.write("{}-{},{}".format(filename[1][:-4], i, label))
+                the_file.write("\n")
+        print("Create label finished.")
 
 
 def countImage(input):
@@ -195,47 +148,62 @@ def countImage(input):
     print("num of files : {}\nnum of dir : {}".format(num_file, num_dir))
 
 
-def olhc2cs(fname, seq_len, dataset_type):
+def ohlc2cs(fname, seq_len, dataset_type):
+    # python preprocess.py -m ohlc2cs -l 20 -i stockdatas/EWT_testing.csv -t testing
     print("Converting olhc to candlestick")
     path = "{}".format(os.getcwd())
     print(path)
-    if not os.path.exists("{}/dataset/{}/{}/html/".format(path,seq_len),dataset_type):
-        os.makedirs("{}/dataset/{}/{}/html/".format(path,seq_len,dataset_type))
-        os.makedirs("{}/dataset/{}/{}/img/".format(path,seq_len,dataset_type))
-    # import plotly.graph_objs as go
-    #py.sign_in('rosdyana', 'eVtlDykeB8gMHmp6y4Ff')
-    # read stock data
-    df = pd.read_csv(fname, header=None, index_col=0)
+    if not os.path.exists("{}/dataset/{}/{}".format(path,seq_len,dataset_type)):
+        os.makedirs("{}/dataset/{}/{}".format(path,seq_len,dataset_type))
+
+    df = pd.read_csv(fname, parse_dates=True, index_col=0)
     df.fillna(0)
-    # drop date and volume columns
-    df.drop(df.columns[[4, 5]], axis=1, inplace=True)
-    df = df.astype(str)
-    separators = pd.DataFrame(', ', df.index, df.columns[:-1])
-    separators[df.columns[-1]] = '\n'
-    # print (df + separators).sum(axis=1).sum()
-    data = df[1:]
-    # print(data.head())
 
-    for i in range(0, len(data), int(seq_len)):
-        print("idx : {}".format(i))
-        c = data[i:i + int(seq_len)]
-        fig = FF.create_candlestick(
-            open=c[1], high=c[2], low=c[3], close=c[4])
+    df.reset_index(inplace=True)
+    df['Date'] = df['Date'].map(mdates.date2num)
+    for i in range(0, len(df)):
+        c = df.ix[i:i+int(seq_len)-1,:]
+        if len(c) == int(seq_len):
+            # Date,Open,High,Low,Adj Close,Volume
+            candlesticks = zip(c['Date'], c['Open'], c['Adj Close'], c['Low'], c['High'], c['Volume'])
+            # fig = plt.figure(figsize=(2.5974025974,3.1746031746))
+            fig = plt.figure(figsize=(500, 600), dpi=1)
+            #ax1 = plt.subplot2grid((6,1), (0,0), rowspan=5, colspan=1, axisbg = 'black')
+            ax = fig.add_subplot(1,1,1)
+            candlestick(ax, candlesticks, width=1, colorup='green', colordown='red')
+            ax.set_xticklabels([])
+            ax.set_yticklabels([])
 
-        fig['layout'].update({
-            'xaxis': dict(visible=False),
-            'yaxis': dict(visible=False),
-            'paper_bgcolor': 'rgb(255,255,255)',
-            'plot_bgcolor': 'rgb(255,255,255)'
-        })
-        #plot_mpl(fig, image='png')
-        #py.image.save_as(fig, filename='dataset/images/{}.png'.format(i))
-        offline.plot(fig, filename='dataset/{}/{}/html/{}-{}.html'.format(seq_len,dataset_typename[12:-4], i),
-                     image='png', auto_open=False, show_link=False, image_filename='{}-{}.png'.format(fname[11:-4], i))
+            # ax.tick_params(axis=u'both', which=u'both',length=0)
+            pad = 0.25
+            yl = ax.get_ylim()
+            ax.set_ylim(yl[0]-(yl[1]-yl[0])*pad,yl[1])
+            ax2 = ax.twinx()
+            ax2.set_position(matplotlib.transforms.Bbox([[0.125,0.1],[0.9,0.32]]))
+            #dates = [x[0] for x in candlesticks]
+            dates = np.asarray(c['Date'])
+            #volume = [x[5] for x in candlesticks]
+            volume = np.asarray(c['Volume'])
+            # print("dates : {} - volume : {}".format(dates,volume))
+            pos = c['Open']-c['Adj Close']<0
+            neg = c['Open']-c['Adj Close']>0
+            # print("neg : {} - pos : {}".format(neg, pos))
+            ax2.bar(dates[pos],volume[pos],color='green',width=1,align='center')
+            ax2.bar(dates[neg],volume[neg],color='red',width=1,align='center')
+            # ax2.set_xlim(min(dates),max(dates))
+            ax2.set_xticklabels([])
+            ax2.set_yticklabels([])
+            pngfile='dataset/{}/{}/{}-{}.png'.format(seq_len,dataset_type,fname[11:-4], i)
+            print("{}".format(pngfile))
+            extent = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+            fig.savefig(pngfile, bbox_inches=extent, pad_inches=0)
+            plt.close(fig)
+    print("Converting olhc to candlestik finished.")
+
 
 
     # imagemagic script to resize img
-    # find . -maxdepth 1 -iname "*.png" | xargs -L1 -I{} convert -flatten +matte -adaptive-resize 48x48! "{}" "{}"
+    #  find . -maxdepth 4 -iname "*.png" | xargs -L1 -I{} convert -flatten +matte -adaptive-resize 200x200! "{}" "{}"
     # R Script convert html to img
     # library(webshot)
     # html_files <- list.files(pattern = ".html$", recursive = TRUE)

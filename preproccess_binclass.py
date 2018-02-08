@@ -97,6 +97,11 @@ def image2dataset(input, label_file):
 
 def createLabel(fname, seq_len):
     print("Creating label . . .")
+    # remove existing label file
+    filename = fname.split('/')
+    # print("{} - {}".format(filename[0], filename[1][:-4]))
+    if os.path.exists("{}_label_{}.txt".format(filename[1][:-4],seq_len)):
+        os.remove("{}_label_{}.txt".format(filename[1][:-4],seq_len))
 
     df = pd.read_csv(fname, parse_dates=True, index_col=0)
     df.fillna(0)
@@ -118,8 +123,8 @@ def createLabel(fname, seq_len):
                 label = 1
             else:
                 label = 0
-            with open("{}_label_{}.txt".format(fname[11:-4],seq_len), 'a') as the_file:
-                the_file.write("{}-{},{}".format(fname[11:-4], i, label))
+            with open("{}_label_{}.txt".format(filename[1][:-4],seq_len), 'a') as the_file:
+                the_file.write("{}-{},{}".format(filename[1][:-4], i, label))
                 the_file.write("\n")
 
 
