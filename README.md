@@ -12,9 +12,9 @@ $ python get_data.py -t SPY -s tiingo
 ## Preprocessing Data
 We provide ready dataset for run this prediction, but if you want to build your own data, please follow this steps.
 
-### Convert O-L-H-C stock data into candle stick plot
+### Convert O-H-L-C-V stock data into candle stick plot
 ```shell-script
-$ python preprocess.py -m olhc2cs -i stockdatas/^FTSE.csv -l 5
+$ python preprocess.py -m ohlc2cs -l 20 -i stockdatas/ETF_testing.csv -t testing
 ```
 
 ### Create label from stock price data
@@ -22,14 +22,9 @@ $ python preprocess.py -m olhc2cs -i stockdatas/^FTSE.csv -l 5
 python preprocess.py -m createLabel -i stockdatas/^FTSE.csv -l 5
 ```
 
-### Convert candle stick plot html to img
-```shell-script
-python preprocess.py -m html2img -i dataset/5 -d 200
-```
-
 ### Build dataset folder separated each classes
 ```shell-script
-python preprocess.py -m img2dt -i dataset/5/img -lf FTSE_label_5.txt
+python preprocess.py -m img2dt -i dataset/classes/ -lf ETF_testing_label_5.txt
 ```
 
 ### Build the model
