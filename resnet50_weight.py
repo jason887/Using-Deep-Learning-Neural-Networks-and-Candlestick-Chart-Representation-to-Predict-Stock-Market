@@ -21,11 +21,11 @@ img_width, img_height = 200, 200
 
 period = 10
 
-top_model_weights_path = 'bottleneck_fc_model_InceptionV3_{}.h5'.format(period)
+top_model_weights_path = 'bottleneck_fc_model_resnet50_{}.h5'.format(period)
 train_data_dir = 'dataset/{}/training'.format(period)
 validation_data_dir = 'dataset/{}/testing'.format(period)
-nb_train_samples = 4144
-nb_validation_samples = 224
+nb_train_samples = 6928 #4144
+nb_validation_samples = 256 #224
 epochs = 100
 batch_size = 16
 
@@ -34,7 +34,7 @@ def save_bottlebeck_features():
     datagen = ImageDataGenerator(rescale=1. / 255)
 
     # build the VGG16 network
-    model = applications.InceptionV3(include_top=False, weights='imagenet')
+    model = applications.ResNet50(include_top=False, weights='imagenet')
 
     generator = datagen.flow_from_directory(
         train_data_dir,
@@ -44,7 +44,7 @@ def save_bottlebeck_features():
         shuffle=False)
     bottleneck_features_train = model.predict_generator(
         generator, nb_train_samples // batch_size)
-    np.save('bottleneck_features_train_InceptionV3_{}'.format(period), bottleneck_features_train)
+    np.save('bottleneck_features_train_resnet50_{}'.format(period), bottleneck_features_train)
 
     generator = datagen.flow_from_directory(
         validation_data_dir,
@@ -54,16 +54,16 @@ def save_bottlebeck_features():
         shuffle=False)
     bottleneck_features_validation = model.predict_generator(
         generator, nb_validation_samples // batch_size)
-    np.save('bottleneck_features_validation_InceptionV3_{}'.format(period),
+    np.save('bottleneck_features_validation_resnet50_{}'.format(period),
             bottleneck_features_validation)
 
 
 def train_top_model():
-    train_data = np.load('bottleneck_features_train_InceptionV3_{}.npy'.format(period))
+    train_data = np.load('bottleneck_features_train_resnet50_{}.npy'.format(period))
     train_labels = np.array(
         [0] * (nb_train_samples // 2) + [1] * (nb_train_samples // 2))
 
-    validation_data = np.load('bottleneck_features_validation_InceptionV3_{}.npy'.format(period))
+    validation_data = np.load('bottleneck_features_validation_resnet50_{}.npy'.format(period))
     validation_labels = np.array(
         [0] * (nb_validation_samples // 2) + [1] * (nb_validation_samples // 2))
 

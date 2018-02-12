@@ -20,11 +20,13 @@ from keras.layers import Input
 # dimensions of our images.
 img_width, img_height = 224, 224
 
-top_model_weights_path = 'bottleneck_fc_model_mobilenet.h5'
-train_data_dir = 'dataset/5/training'
-validation_data_dir = 'dataset/5/testing'
-nb_train_samples = 4144
-nb_validation_samples = 224
+period = 10
+
+top_model_weights_path = 'bottleneck_fc_model_mobilenet_{}.h5'.format(period)
+train_data_dir = 'dataset/{}/training'.format(period)
+validation_data_dir = 'dataset/{}/testing'.format(period)
+nb_train_samples = 6928 #4144
+nb_validation_samples = 256 #224
 epochs = 100
 batch_size = 16
 
@@ -43,7 +45,7 @@ def save_bottlebeck_features():
         shuffle=False)
     bottleneck_features_train = model.predict_generator(
         generator, nb_train_samples // batch_size)
-    np.save('bottleneck_features_train_mobilenet', bottleneck_features_train)
+    np.save('bottleneck_features_train_mobilenet_{}'.format(period), bottleneck_features_train)
 
     generator = datagen.flow_from_directory(
         validation_data_dir,
@@ -53,16 +55,16 @@ def save_bottlebeck_features():
         shuffle=False)
     bottleneck_features_validation = model.predict_generator(
         generator, nb_validation_samples // batch_size)
-    np.save('bottleneck_features_validation_mobilenet',
+    np.save('bottleneck_features_validation_mobilenet_{}'.format(period),
             bottleneck_features_validation)
 
 
 def train_top_model():
-    train_data = np.load('bottleneck_features_train_mobilenet.npy')
+    train_data = np.load('bottleneck_features_train_mobilenet_{}.npy'.format(period))
     train_labels = np.array(
         [0] * (nb_train_samples // 2) + [1] * (nb_train_samples // 2))
 
-    validation_data = np.load('bottleneck_features_validation_mobilenet.npy')
+    validation_data = np.load('bottleneck_features_validation_mobilenet_{}.npy'.format(period))
     validation_labels = np.array(
         [0] * (nb_validation_samples // 2) + [1] * (nb_validation_samples // 2))
 
@@ -89,7 +91,7 @@ def train_top_model():
     # print('Overall Test score: {}'.format(test_score[0]))
     # print('Overall Test accuracy: {}'.format(test_score[1]))
 
-    f_output = open("{}_5.txt".format(top_model_weights_path),'a')
+    f_output = open("{}_{}.txt".format(top_model_weights_path,period),'a')
     f_output.write('=======\n')
     f_output.write('Overall Train score: {}\n'.format(train_score[0]))
     f_output.write('Overall Train accuracy: {}\n'.format(train_score[1]))

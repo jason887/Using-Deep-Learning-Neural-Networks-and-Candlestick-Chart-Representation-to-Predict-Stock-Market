@@ -139,7 +139,7 @@ def createLabel(fname, seq_len):
             with open("{}_label_{}.txt".format(filename[1][:-4],seq_len), 'a') as the_file:
                 the_file.write("{}-{},{}".format(filename[1][:-4], i, label))
                 the_file.write("\n")
-        print("Create label finished.")
+    print("Create label finished.")
 
 
 def countImage(input):
