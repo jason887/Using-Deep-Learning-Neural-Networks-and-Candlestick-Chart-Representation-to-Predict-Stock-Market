@@ -60,20 +60,20 @@ def identity_block(input_tensor, kernel_size, filters, stage, block):
     conv_name_base = 'res' + str(stage) + block + '_branch'
     bn_name_base = 'bn' + str(stage) + block + '_branch'
 
-    x = Conv2D(nb_filter1, (1, 1), name=conv_name_base +
+    x = Convolution2D(nb_filter1, (1, 1), name=conv_name_base +
                '2a', use_bias=False)(input_tensor)
     x = BatchNormalization(axis=bn_axis,
                            name=bn_name_base + '2a')(x)
     x = Activation('relu', name=conv_name_base + '2a_relu')(x)
 
     x = ZeroPadding2D((1, 1), name=conv_name_base + '2b_zeropadding')(x)
-    x = Conv2D(nb_filter2, (kernel_size, kernel_size),
+    x = Convolution2D(nb_filter2, (kernel_size, kernel_size),
                name=conv_name_base + '2b', use_bias=False)(x)
     x = BatchNormalization(axis=bn_axis,
                            name=bn_name_base + '2b')(x)
     x = Activation('relu', name=conv_name_base + '2b_relu')(x)
 
-    x = Conv2D(nb_filter3, (1, 1), name=conv_name_base +
+    x = Convolution2D(nb_filter3, (1, 1), name=conv_name_base +
                '2c', use_bias=False)(x)
     x = BatchNormalization(axis=bn_axis,
                            name=bn_name_base + '2c')(x)
@@ -99,20 +99,20 @@ def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2))
     conv_name_base = 'res' + str(stage) + block + '_branch'
     bn_name_base = 'bn' + str(stage) + block + '_branch'
 
-    x = Conv2D(nb_filter1, (1, 1), strides=strides,
+    x = Convolution2D(nb_filter1, (1, 1), strides=strides,
                name=conv_name_base + '2a', use_bias=False)(input_tensor)
     x = BatchNormalization(axis=bn_axis,
                            name=bn_name_base + '2a')(x)
     x = Activation('relu', name=conv_name_base + '2a_relu')(x)
 
     x = ZeroPadding2D((1, 1), name=conv_name_base + '2b_zeropadding')(x)
-    x = Conv2D(nb_filter2, (kernel_size, kernel_size),
+    x = Convolution2D(nb_filter2, (kernel_size, kernel_size),
                name=conv_name_base + '2b', use_bias=False)(x)
     x = BatchNormalization(axis=bn_axis,
                            name=bn_name_base + '2b')(x)
     x = Activation('relu', name=conv_name_base + '2b_relu')(x)
 
-    x = Conv2D(nb_filter3, (1, 1), name=conv_name_base +
+    x = Convolution2D(nb_filter3, (1, 1), name=conv_name_base +
                '2c', use_bias=False)(x)
     x = BatchNormalization(axis=bn_axis,
                            name=bn_name_base + '2c')(x)
