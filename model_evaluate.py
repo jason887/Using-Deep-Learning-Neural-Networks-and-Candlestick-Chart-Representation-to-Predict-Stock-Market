@@ -38,15 +38,11 @@ def build_dataset(data_directory, img_width):
     nb_classes = len(tags)
 
     sample_count = len(y)
-    train_size = sample_count * 4 // 5
+    train_size = sample_count
     print("train size : {}".format(train_size))
-    X_train = X[:train_size]
-    y_train = y[:train_size]
-    Y_train = np_utils.to_categorical(y_train, nb_classes)
-    X_test  = X[train_size:]
-    y_test  = y[train_size:]
-    Y_test = np_utils.to_categorical(y_test, nb_classes)
-    return X_train, Y_train, X_test, Y_test, nb_classes
+    feature = X
+    label = np_utils.to_categorical(y, nb_classes)
+    return feature, label, nb_classes
 
 def main():
     start_time = time.monotonic()
@@ -73,7 +69,8 @@ def main():
     period_name = data_directory.split('/')
 
     print ("loading dataset")
-    X_train, Y_train, X_test, Y_test, nb_classes= build_dataset(data_directory, args.dimension)
+    X_train, Y_train, nb_classes= build_dataset("{}/training/classes".format(data_directory), args.dimension)
+    X_test, Y_test, nb_classes= build_dataset("{}/testing/classes".format(data_directory), args.dimension)
     print("number of classes : {}".format(nb_classes))
 
     # load pre-trained model
