@@ -222,8 +222,7 @@ def main():
     model.fit(X_train, Y_train, batch_size=batch_size, epochs=epochs)
 
     # Save Model or creates a HDF5 file
-    model.save('{}epochs_{}period_{}dimension_resnet152_{}.h5'.format(
-        epochs, period_name[1], args.dimension, args.optimizer), overwrite=True)
+    model.save('{}epochs_{}period_{}dimension_resnet152_model.h5'.format(epochs,period_name[2],period_name[1]), overwrite=True)
     # del model  # deletes the existing model
     predicted = model.predict(X_test)
     y_pred = np.argmax(predicted,axis=1)
