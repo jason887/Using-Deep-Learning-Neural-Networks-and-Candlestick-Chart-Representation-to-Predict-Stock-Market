@@ -109,7 +109,7 @@ def main():
 
     f_output = open(args.output,'a')
     f_output.write('=======\n')
-    f_output.write('{}epochs_{}period_{}dimension_resnet50\n'.format(epochs,period_name[2],period_name[1]))
+    f_output.write('{}\n'.format(args.model_name)
     f_output.write('TN: {}\n'.format(tn))
     f_output.write('FN: {}\n'.format(fn))
     f_output.write('TP: {}\n'.format(tp))
