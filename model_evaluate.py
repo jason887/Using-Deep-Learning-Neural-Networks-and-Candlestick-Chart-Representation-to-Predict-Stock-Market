@@ -27,6 +27,8 @@ from keras.preprocessing.image import ImageDataGenerator
 from keras.utils import np_utils
 import dataset
 import argparse
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report
 
 import time
 from datetime import timedelta
@@ -76,26 +78,52 @@ def main():
     # load pre-trained model
     model = load_model(args.model_name)
 
-    train_score = model.evaluate(X_train, Y_train, verbose=1)
-    print('Overall Train score: {}'.format(train_score[0]))
-    print('Overall Train accuracy: {}'.format(train_score[1]))
-
-    test_score = model.evaluate(X_test, Y_test, verbose=1)
-    print('Overall Test score: {}'.format(test_score[0]))
-    print('Overall Test accuracy: {}'.format(test_score[1]))
-    end_time = time.monotonic()
-    print("Duration : {}".format(timedelta(seconds=end_time - start_time)))
+    predicted = model.predict(X_test)
+    y_pred = np.argmax(predicted,axis=1)
+    Y_test = np.argmax(Y_test, axis = 1)
+    cm = confusion_matrix(Y_test, y_pred)
+    report = classification_report(Y_test, y_pred)
+    tn=cm[0][0]
+    fn=cm[1][0]
+    tp=cm[1][1]
+    fp=cm[0][1]
+    if tp==0:
+        tp=1
+    if tn==0:
+        tn=1
+    if fp==0:
+        fp=1
+    if fn==0:
+        fn=1
+    TPR=float(tp)/(float(tp)+float(fn))
+    FPR=float(fp)/(float(fp)+float(tn))
+    accuracy = round((float(tp) + float(tn))/(float(tp) + float(fp) + float(fn) + float(tn)),3)
+    specitivity=round(float(tn)/(float(tn) + float(fp)),3)
+    sensitivity = round(float(tp)/(float(tp) + float(fn)),3)
+    mcc = round((float(tp)*float(tn) - float(fp)*float(fn))/math.sqrt(
+                                                                (float(tp)+float(fp))
+                                                                *(float(tp)+float(fn))
+                                                                *(float(tn)+float(fp))
+                                                                *(float(tn)+float(fn))
+                                                                ),3)
 
     f_output = open(args.output,'a')
     f_output.write('=======\n')
-    f_output.write('{}\n'.format(args.model_name))
-    f_output.write('Overall Train score: {}\n'.format(train_score[0]))
-    f_output.write('Overall Train accuracy: {}\n'.format(train_score[1]))
-    f_output.write('Overall Test score: {}\n'.format(test_score[0]))
-    f_output.write('Overall Test accuracy: {}\n'.format(test_score[1]))
-    f_output.write("Duration : {}".format(timedelta(seconds=end_time - start_time)))
+    f_output.write('{}epochs_{}period_{}dimension_resnet50\n'.format(epochs,period_name[2],period_name[1]))
+    f_output.write('TN: {}\n'.format(tn))
+    f_output.write('FN: {}\n'.format(fn))
+    f_output.write('TP: {}\n'.format(tp))
+    f_output.write('FP: {}\n'.format(fp))
+    f_output.write('TPR: {}\n'.format(TPR))
+    f_output.write('FPR: {}\n'.format(FPR))
+    f_output.write('accuracy: {}\n'.format(accuracy))
+    f_output.write('specitivity: {}\n'.format(specitivity))
+    f_output.write("sensitivity : {}\n".format(sensitivity))
+    f_output.write("mcc : {}\n".format(mcc))
+    f_output.write("{}".format(report))
     f_output.write('=======\n')
     f_output.close()
+
 
 if __name__ == "__main__":
     main()
