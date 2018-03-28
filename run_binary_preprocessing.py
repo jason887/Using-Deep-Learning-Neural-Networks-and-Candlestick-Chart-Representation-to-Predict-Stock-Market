@@ -6,10 +6,10 @@ formatters = {
     'END': '\033[0m',
 }
 
-symbol = "EIDO"
+symbol = "EWT"
 start_date = "2017-01-01"
 end_date = "2016-12-31"
-windows_length = 5
+windows_length = 20
 
 # get data testing
 print('{RED}\nGet Testing Data{END}'.format(**formatters))
@@ -59,5 +59,7 @@ subprocess.call('python preproccess_binclass.py -m img2dt -i dataset/{}/{}/testi
     windows_length, symbol, symbol, windows_length), shell=True)
 print('{GREEN}Labelling Testing Data Done\n{END}'.format(**formatters))
 
-print('{RED}Last step please resize images with your own.{END}'.format(**formatters))
+# print('{RED}Last step please resize images with your own.{END}'.format(**formatters))
 # find . -maxdepth 4 -iname "*.png" | xargs -L1 -I{} convert -flatten +matte -adaptive-resize 200x200! "{}" "{}"
+
+# find . -name "*.png" -exec convert "{}" -alpha off "{}" \;

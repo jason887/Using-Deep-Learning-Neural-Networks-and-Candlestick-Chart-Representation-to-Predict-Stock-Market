@@ -15,6 +15,7 @@ from pathlib import Path
 # https://github.com/matplotlib/mpl_finance
 from mpl_finance import candlestick_ochl as candlestick
 
+
 def isnan(value):
     try:
         import math
@@ -22,9 +23,11 @@ def isnan(value):
     except:
         return False
 
+
 def removeOutput(finput):
     if(Path(finput)).is_file():
         os.remove(finput)
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -51,6 +54,7 @@ def main():
     if args.mode == 'countImg':
         countImage(args.input)
 
+
 def image2dataset(input, label_file):
     # python preprocess.py -m img2dt -i dataset/5/img -lf FTSE_label_5.txt
     label_dict = {}
@@ -75,7 +79,7 @@ def image2dataset(input, label_file):
         # print(filename)
         # print(os.getcwd())
         if filename is not '':
-            for k,v in label_dict.items():
+            for k, v in label_dict.items():
                 if filename[:-4] == k:
                     # print("{} same with {} with v {}".format(filename, k, v))
                     new_name = "{}{}.png".format(v, filename[:-4])
@@ -90,8 +94,9 @@ def image2dataset(input, label_file):
                     #     count_d += 1
                     # if v == 'E':
                     #     count_e += 1
-                    os.rename("{}/{}".format(path,filename), "{}/{}".format(path,new_name))
-                    break;
+                    os.rename("{}/{}".format(path, filename),
+                              "{}/{}".format(path, new_name))
+                    break
     # print("a = {}\nb = {}\nc = {}\nd = {}\ne = {}".format(count_a,count_b,count_c,count_d,count_e))
             # label = list(label_dict.values())[
             #     list(label_dict.keys()).index("{}".format(filename[:-4]))]
@@ -102,24 +107,30 @@ def image2dataset(input, label_file):
             # # print("rename {} to {}".format(filename, new_name))
             # os.rename("{}/{}".format(path,filename), "{}/{}".format(path,new_name))
 
-    folders = ['A','B','C','D','E']
+    folders = ['A', 'B', 'C', 'D', 'E']
     for folder in folders:
-        if not os.path.exists("{}/classes/{}".format(path,folder)):
-            os.makedirs("{}/classes/{}".format(path,folder))
+        if not os.path.exists("{}/classes/{}".format(path, folder)):
+            os.makedirs("{}/classes/{}".format(path, folder))
 
     for filename in os.listdir(path):
         if filename is not '':
             # print(filename[:1])
             if filename[:1] == "A":
-                copyfile("{}/{}".format(path,filename), "{}/classes/A/{}".format(path,filename))
+                copyfile("{}/{}".format(path, filename),
+                         "{}/classes/A/{}".format(path, filename))
             elif filename[:1] == "B":
-                copyfile("{}/{}".format(path,filename), "{}/classes/B/{}".format(path,filename))
+                copyfile("{}/{}".format(path, filename),
+                         "{}/classes/B/{}".format(path, filename))
             elif filename[:1] == "C":
-                copyfile("{}/{}".format(path,filename), "{}/classes/C/{}".format(path,filename))
+                copyfile("{}/{}".format(path, filename),
+                         "{}/classes/C/{}".format(path, filename))
             elif filename[:1] == "D":
-                copyfile("{}/{}".format(path,filename), "{}/classes/D/{}".format(path,filename))
+                copyfile("{}/{}".format(path, filename),
+                         "{}/classes/D/{}".format(path, filename))
             elif filename[:1] == "E":
-                copyfile("{}/{}".format(path,filename), "{}/classes/E/{}".format(path,filename))
+                copyfile("{}/{}".format(path, filename),
+                         "{}/classes/E/{}".format(path, filename))
+
 
 def createLabel(fname, seq_len):
     # python preprocess.py -m createLabel -l 20 -i stockdatas/EWT_training5.csv
@@ -127,8 +138,8 @@ def createLabel(fname, seq_len):
     # remove existing label file
     filename = fname.split('/')
     # print("{} - {}".format(filename[0], filename[1][:-4]))
-    removeOutput("{}_label_{}.txt".format(filename[1][:-4],seq_len))
-    removeOutput('perct_value_{}_{}'.format(filename[1][:-4],seq_len))
+    removeOutput("{}_label_{}.txt".format(filename[1][:-4], seq_len))
+    removeOutput('perct_value_{}_{}'.format(filename[1][:-4], seq_len))
     # if os.path.exists("{}_label_{}.txt".format(filename[1][:-4],seq_len)):
     #     os.remove("{}_label_{}.txt".format(filename[1][:-4],seq_len))
 
@@ -138,27 +149,27 @@ def createLabel(fname, seq_len):
     df.reset_index(inplace=True)
     df['Date'] = df['Date'].map(mdates.date2num)
     for i in range(0, len(df)):
-        c = df.ix[i:i+int(seq_len),:]
+        c = df.ix[i:i + int(seq_len), :]
         starting = 0
         endvalue = 0
         label = ""
         # print("len(c) is {}".format(len(c)))
         # print(c)
-        if len(c) == int(seq_len)+1:
+        if len(c) == int(seq_len) + 1:
             for idx, val in enumerate(c['Adj Close']):
                 # print(idx,val)
                 if idx == 0:
                     starting = float(val)
-                if idx == len(c)-1:
+                if idx == len(c) - 1:
                     endvalue = float(val)
             sizeincrease = endvalue - starting
-            #print("=============")
+            # print("=============")
             #print("{} - {} = {}".format(endvalue,starting,sizeincrease))
             diff = sizeincrease / starting
             #print("{} / {} = {}".format(sizeincrease,starting,diff*100))
-            #print("=============")
+            # print("=============")
             perct = diff * 100
-            with open('perct_value_{}_{}'.format(filename[1][:-4],seq_len), 'a') as f:
+            with open('perct_value_{}_{}'.format(filename[1][:-4], seq_len), 'a') as f:
                 f.write("{}\n".format(perct))
             # if isnan(perct):
             #     perct = 0
@@ -196,7 +207,7 @@ def createLabel(fname, seq_len):
             if perct == 0:
                 label = "E"
             # belong to EWT
-            with open("{}_label_{}.txt".format(filename[1][:-4],seq_len), 'a') as the_file:
+            with open("{}_label_{}.txt".format(filename[1][:-4], seq_len), 'a') as the_file:
                 the_file.write("{}-{},{}".format(filename[1][:-4], i, label))
                 the_file.write("\n")
     print("Create label finished.")
@@ -216,50 +227,36 @@ def ohlc2cs(fname, seq_len, dataset_type):
     print(symbol)
     path = "{}".format(os.getcwd())
     # print(path)
-    if not os.path.exists("{}/dataset/{}/{}/{}".format(path,seq_len,symbol,dataset_type)):
-        os.makedirs("{}/dataset/{}/{}/{}".format(path,seq_len,symbol,dataset_type))
+    if not os.path.exists("{}/dataset/{}/{}/{}".format(path, seq_len, symbol, dataset_type)):
+        os.makedirs("{}/dataset/{}/{}/{}".format(path,
+                                                 seq_len, symbol, dataset_type))
 
     df = pd.read_csv(fname, parse_dates=True, index_col=0)
     df.fillna(0)
-
+    plt.style.use('dark_background')
     df.reset_index(inplace=True)
     df['Date'] = df['Date'].map(mdates.date2num)
     for i in range(0, len(df)):
-        c = df.ix[i:i+int(seq_len)-1,:]
+        c = df.ix[i:i + int(seq_len) - 1, :]
         if len(c) == int(seq_len):
             # Date,Open,High,Low,Adj Close,Volume
-            candlesticks = zip(c['Date'], c['Open'], c['High'], c['Low'], c['Adj Close'], c['Volume'])
-            # fig = plt.figure(figsize=(2.5974025974,3.1746031746))
-            fig = plt.figure(figsize=(500, 600), dpi=1)
-            #ax1 = plt.subplot2grid((6,1), (0,0), rowspan=5, colspan=1, axisbg = 'black')
-            ax = fig.add_subplot(1,1,1)
-            candlestick(ax, candlesticks, width=0.4, colorup='green', colordown='red')
-            ax.set_xticklabels([])
-            ax.set_yticklabels([])
-
-            # ax.tick_params(axis=u'both', which=u'both',length=0)
-            pad = 0.25
-            yl = ax.get_ylim()
-            ax.set_ylim(yl[0]-(yl[1]-yl[0])*pad,yl[1])
-            ax2 = ax.twinx()
-            ax2.set_position(matplotlib.transforms.Bbox([[0.125,0.1],[0.9,0.32]]))
-            #dates = [x[0] for x in candlesticks]
-            dates = np.asarray(c['Date'])
-            #volume = [x[5] for x in candlesticks]
-            volume = np.asarray(c['Volume'])
-            # print("dates : {} - volume : {}".format(dates,volume))
-            pos = c['Open']-c['Adj Close']<0
-            neg = c['Open']-c['Adj Close']>0
-            # print("neg : {} - pos : {}".format(neg, pos))
-            ax2.bar(dates[pos],volume[pos],color='green',width=0.4,align='center')
-            ax2.bar(dates[neg],volume[neg],color='red',width=0.4,align='center')
-            # ax2.set_xlim(min(dates),max(dates))
-            ax2.set_xticklabels([])
-            ax2.set_yticklabels([])
-            pngfile='dataset/{}/{}/{}/{}-{}.png'.format(seq_len,symbol,dataset_type,fname[11:-4], i)
-            # print("{}".format(pngfile))
-            extent = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
-            fig.savefig(pngfile, bbox_inches=extent, pad_inches=0)
+            ohlc = zip(c['Date'], c['Open'], c['High'],
+                       c['Low'], c['Close'], c['Volume'])
+            my_dpi = 96
+            fig = plt.figure(figsize=(48 / my_dpi, 48 / my_dpi), dpi=my_dpi)
+            ax1 = plt.subplot2grid((1, 1), (0, 0))
+            # candlestick2_ohlc(ax1, c['Open'],c['High'],c['Low'],c['Close'], width=0.4, colorup='#77d879', colordown='#db3f3f')
+            candlestick_ohlc(ax1, ohlc, width=0.4,
+                             colorup='#77d879', colordown='#db3f3f')
+            ax1.grid(False)
+            ax1.set_xticklabels([])
+            ax1.set_yticklabels([])
+            ax1.xaxis.set_visible(False)
+            ax1.yaxis.set_visible(False)
+            ax1.axis('off')
+            pngfile = 'dataset/{}/{}/{}/{}-{}.png'.format(
+                seq_len, symbol, dataset_type, fname[11:-4], i)
+            fig.savefig(pngfile,  pad_inches=0, transparent=False)
             plt.close(fig)
     print("Converting olhc to candlestik finished.")
 
