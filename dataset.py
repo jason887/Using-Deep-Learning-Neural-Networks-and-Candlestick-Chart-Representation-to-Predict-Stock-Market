@@ -47,14 +47,14 @@ def dataset(base_dir, n):
             height, width, chan = img.shape
             assert chan == 3
             aspect_ratio = float(max((height, width))) / min((height, width))
-            if aspect_ratio > 2:
-                continue
-            # We pick the largest center square.
-            centery = height // 2
-            centerx = width // 2
-            radius = min((centerx, centery))
-            img = img[centery-radius:centery+radius, centerx-radius:centerx+radius]
-            img = scipy.misc.imresize(img, size=(n, n), interp='bilinear')
+            # if aspect_ratio > 2:
+            #     continue
+            # # We pick the largest center square.
+            # centery = height // 2
+            # centerx = width // 2
+            # radius = min((centerx, centery))
+            # img = img[centery-radius:centery+radius, centerx-radius:centerx+radius]
+            # img = scipy.misc.imresize(img, size=(n, n), interp='bilinear')
             X.append(img)
             y.append(class_index)
             useful_image_count += 1
@@ -65,9 +65,9 @@ def dataset(base_dir, n):
     # X = preprocess_input(X)
     y = np.array(y)
 
-    perm = np.random.permutation(len(y))
-    X = X[perm]
-    y = y[perm]
+    # perm = np.random.permutation(len(y))
+    # X = X[perm]
+    # y = y[perm]
 
     print ("classes:")
     for class_index, class_name in enumerate(tags):

@@ -38,15 +38,19 @@ def main():
     parser.add_argument('-s', '--source', help='<Required> set source', required=True)
     parser.add_argument('-a', '--attempt', help='set max attempt to download', default=10)
     parser.add_argument('-e', '--exist', help='check exist stock history file', default=False)
+    parser.add_argument('-p', '--prefix', help='add prefix in output name')
     args = parser.parse_args()
     # # fetch all data
 
+    prefix_name = ""
+    if len(args.prefix) > 1:
+        prefix_name = args.prefix
     if args.source == "tiingo":
         for ticker in set(args.ticker):
-            fetch_tiingo_data(ticker, args.start_date, args.end_date, "stockdatas/{}.csv".format(ticker))
+            fetch_tiingo_data(ticker, args.start_date, args.end_date, "stockdatas/{}_{}.csv".format(ticker,prefix_name))
     elif args.source == "yahoo":
         for ticker in set(args.ticker):
-            fetch_yahoo_data(ticker, args.start_date, args.end_date, "stockdatas/{}.csv".format(ticker), args.attempt, args.exist)
+            fetch_yahoo_data(ticker, args.start_date, args.end_date, "stockdatas/{}_{}.csv".format(ticker,prefix_name), args.attempt, args.exist)
 
 
 def fetch_tiingo_data(ticker, start_date, end_date, fname):

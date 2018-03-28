@@ -6,7 +6,7 @@ K.set_session(K.tf.Session(config=cfg))
 import tensorflow as tf # uncomment this for using GPU
 import os
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 config = tf.ConfigProto()
 # maximun alloc gpu50% of MEM
 # config.gpu_options.per_process_gpu_memory_fraction = 0.5
@@ -58,7 +58,7 @@ def build_model(SHAPE, nb_classes, bn_axis, seed=None):
     # [3, 24, 36, 3] resnet 200 architecture
     # error.
     if seed:
-          np.random.seed(seed)
+          np.random.seed(seed)nb_classes
 
     input_layer = Input(shape=SHAPE)
 

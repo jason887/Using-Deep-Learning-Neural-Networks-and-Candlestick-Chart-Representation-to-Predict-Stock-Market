@@ -53,7 +53,7 @@ def main():
     parser.add_argument('-i', '--input',
                         help='an input directory of dataset', required=True)
     parser.add_argument('-d', '--dimension',
-                        help='a image dimension', type=int, default=200)
+                        help='a image dimension', type=int, default=48)
     parser.add_argument('-c', '--channel',
                         help='a image channel', type=int, default=3)
     parser.add_argument('-md', '--model_name',
@@ -109,7 +109,7 @@ def main():
 
     f_output = open(args.output,'a')
     f_output.write('=======\n')
-    f_output.write('{}\n'.format(args.model_name)
+    f_output.write('{}\n'.format(args.model_name))
     f_output.write('TN: {}\n'.format(tn))
     f_output.write('FN: {}\n'.format(fn))
     f_output.write('TP: {}\n'.format(tp))

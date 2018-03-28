@@ -104,3 +104,11 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+*.csv
+*.txt
+.vscode/
+dataset/
+dataset_binary/
+*.png
+stockdatas/

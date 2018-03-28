@@ -17,15 +17,16 @@ from keras.layers import Dropout, Flatten, Dense
 from keras import applications
 
 # dimensions of our images.
-img_width, img_height = 200, 200
+img_width, img_height = 48, 48
 
-period = 10
+period = 5
+symbol = 'EWT'
 
 top_model_weights_path = 'bottleneck_fc_model_resnet50_{}.h5'.format(period)
-train_data_dir = 'dataset/{}/training'.format(period)
-validation_data_dir = 'dataset/{}/testing'.format(period)
-nb_train_samples = 6928 #4144
-nb_validation_samples = 256 #224
+train_data_dir = 'dataset/{}/{}/training'.format(period,symbol)
+validation_data_dir = 'dataset/{}/{}/testing'.format(period,symbol)
+nb_train_samples = 4144 #4144
+nb_validation_samples = 272 #224
 epochs = 100
 batch_size = 16
 

@@ -19,13 +19,13 @@ from keras import applications
 # dimensions of our images.
 img_width, img_height = 200, 200
 
-period = 10
+period = 5
 
 top_model_weights_path = 'bottleneck_fc_model_vgg16_{}.h5'.format(period)
 train_data_dir = 'dataset/{}/training'.format(period)
 validation_data_dir = 'dataset/{}/testing'.format(period)
-nb_train_samples = 6928 #4144
-nb_validation_samples = 256 #224
+nb_train_samples = 4144 #1200 #1456 #6928 #4144
+nb_validation_samples = 272 #293 #272 #32 #256 #224
 epochs = 100
 batch_size = 16
 
@@ -74,7 +74,7 @@ def train_top_model():
     model.add(Dense(1, activation='sigmoid'))
 
     model.compile(optimizer='rmsprop',
-                  loss='binary_crossentropy', metrics=['accuracy'])
+                  loss='categorical_crossentropy', metrics=['accuracy'])
 
     model.fit(train_data, train_labels,
               epochs=epochs,

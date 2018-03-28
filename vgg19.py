@@ -19,13 +19,13 @@ from keras import applications
 # dimensions of our images.
 img_width, img_height = 200, 200
 
-period = 10
+period = 5
 
 top_model_weights_path = 'bottleneck_fc_model_vgg19_{}.h5'.format(period)
 train_data_dir = 'dataset/{}/training'.format(period)
 validation_data_dir = 'dataset/{}/testing'.format(period)
-nb_train_samples = 6928 #4144
-nb_validation_samples = 256 #224
+nb_train_samples = 4144 #1200 #1456 #6928 #4144
+nb_validation_samples = 272 #293 #272 #32 #256 #224
 epochs = 100
 batch_size = 16
 
@@ -40,7 +40,7 @@ def save_bottlebeck_features():
         train_data_dir,
         target_size=(img_width, img_height),
         batch_size=batch_size,
-        class_mode=None,
+        class_mode='categorical',
         shuffle=False)
     bottleneck_features_train = model.predict_generator(
         generator, nb_train_samples // batch_size)
@@ -50,7 +50,7 @@ def save_bottlebeck_features():
         validation_data_dir,
         target_size=(img_width, img_height),
         batch_size=batch_size,
-        class_mode=None,
+        class_mode='categorical',
         shuffle=False)
     bottleneck_features_validation = model.predict_generator(
         generator, nb_validation_samples // batch_size)
@@ -66,7 +66,8 @@ def train_top_model():
     validation_data = np.load('bottleneck_features_validation_vgg19_{}.npy'.format(period))
     validation_labels = np.array(
         [0] * (nb_validation_samples // 2) + [1] * (nb_validation_samples // 2))
-
+    for i in validation_labels:
+        print(i)
     model = Sequential()
     model.add(Flatten(input_shape=train_data.shape[1:]))
     model.add(Dense(256, activation='relu'))
@@ -74,7 +75,7 @@ def train_top_model():
     model.add(Dense(1, activation='sigmoid'))
 
     model.compile(optimizer='rmsprop',
-                  loss='binary_crossentropy', metrics=['accuracy'])
+                  loss='categorical_crossentropy', metrics=['accuracy'])
 
     model.fit(train_data, train_labels,
               epochs=epochs,

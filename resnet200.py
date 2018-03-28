@@ -132,7 +132,7 @@ def main():
     SHAPE = (img_width, img_height ,channel)
     bn_axis = 3 if K.image_dim_ordering() == 'tf' else 1
 
-    data_directory = args.input
+    data_directory = args.inputer
     period_name = data_directory.split('/')
 
     print ("loading dataset")
