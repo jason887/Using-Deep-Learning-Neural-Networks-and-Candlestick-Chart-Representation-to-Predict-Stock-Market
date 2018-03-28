@@ -112,3 +112,4 @@ dataset/
 dataset_binary/
 *.png
 stockdatas/
+*.tar.gz
