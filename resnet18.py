@@ -16,12 +16,13 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.models import Model
 from keras.optimizers import Adam
 from keras.preprocessing import image
-from keras.layers import (Activation, BatchNormalization, Convolution2D, Dense,
+from keras.layers import (Activation, BatchNormalization, Conv2D, Dense,
                           Flatten, Input, MaxPooling2D, ZeroPadding2D, AveragePooling2D)
 from keras import backend as K
 import numpy as np
 from keras import applications
 from keras.preprocessing.image import ImageDataGenerator
+from keras.layers.merge import dot, multiply, concatenate, add
 from keras.utils import np_utils
 import dataset
 import argparse
@@ -46,7 +47,7 @@ def build_dataset(data_directory, img_width):
     # Y_test = np_utils.to_categorical(y_test, nb_classes)
     return X,y,sample_count,nb_classes
 
-def identity_block(input_tensor, kernel_size, filters, stage, block):
+def identity_block(input_tensor, kernel_size, filters, stage, block,bn_axis=3):
     '''The identity_block is the block that has no conv layer at shortcut
     # Arguments
         input_tensor: input tensor
@@ -60,20 +61,20 @@ def identity_block(input_tensor, kernel_size, filters, stage, block):
     conv_name_base = 'res' + str(stage) + block + '_branch'
     bn_name_base = 'bn' + str(stage) + block + '_branch'
 
-    x = Convolution2D(nb_filter1, (1, 1), name=conv_name_base +
+    x = Conv2D(nb_filter1, (1, 1), name=conv_name_base +
                '2a', use_bias=False)(input_tensor)
     x = BatchNormalization(axis=bn_axis,
                            name=bn_name_base + '2a')(x)
     x = Activation('relu', name=conv_name_base + '2a_relu')(x)
 
     x = ZeroPadding2D((1, 1), name=conv_name_base + '2b_zeropadding')(x)
-    x = Convolution2D(nb_filter2, (kernel_size, kernel_size),
+    x = Conv2D(nb_filter2, (kernel_size, kernel_size),
                name=conv_name_base + '2b', use_bias=False)(x)
     x = BatchNormalization(axis=bn_axis,
                            name=bn_name_base + '2b')(x)
     x = Activation('relu', name=conv_name_base + '2b_relu')(x)
 
-    x = Convolution2D(nb_filter3, (1, 1), name=conv_name_base +
+    x = Conv2D(nb_filter3, (1, 1), name=conv_name_base +
                '2c', use_bias=False)(x)
     x = BatchNormalization(axis=bn_axis,
                            name=bn_name_base + '2c')(x)
@@ -83,7 +84,7 @@ def identity_block(input_tensor, kernel_size, filters, stage, block):
     return x
 
 
-def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2)):
+def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2),bn_axis=3):
     '''conv_block is the block that has a conv layer at shortcut
     # Arguments
         input_tensor: input tensor
@@ -99,20 +100,20 @@ def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2))
     conv_name_base = 'res' + str(stage) + block + '_branch'
     bn_name_base = 'bn' + str(stage) + block + '_branch'
 
-    x = Convolution2D(nb_filter1, (1, 1), strides=strides,
+    x = Conv2D(nb_filter1, (1, 1), strides=strides,
                name=conv_name_base + '2a', use_bias=False)(input_tensor)
     x = BatchNormalization(axis=bn_axis,
                            name=bn_name_base + '2a')(x)
     x = Activation('relu', name=conv_name_base + '2a_relu')(x)
 
     x = ZeroPadding2D((1, 1), name=conv_name_base + '2b_zeropadding')(x)
-    x = Convolution2D(nb_filter2, (kernel_size, kernel_size),
+    x = Conv2D(nb_filter2, (kernel_size, kernel_size),
                name=conv_name_base + '2b', use_bias=False)(x)
     x = BatchNormalization(axis=bn_axis,
                            name=bn_name_base + '2b')(x)
     x = Activation('relu', name=conv_name_base + '2b_relu')(x)
 
-    x = Convolution2D(nb_filter3, (1, 1), name=conv_name_base +
+    x = Conv2D(nb_filter3, (1, 1), name=conv_name_base +
                '2c', use_bias=False)(x)
     x = BatchNormalization(axis=bn_axis,
                            name=bn_name_base + '2c')(x)
@@ -134,26 +135,26 @@ def build_model(SHAPE,nb_classes,bn_axis,seed=None):
     input_layer = Input(shape=SHAPE)
 
     x = ZeroPadding2D((3, 3))(input_layer)
-    x = Convolution2D(64, 7, 7, subsample=(2, 2), name='conv1')(x)
+    x = Conv2D(64, 7, 7, subsample=(2, 2), name='conv1')(x)
     x = BatchNormalization(axis=bn_axis, name='bn_conv1')(x)
     x = Activation('relu')(x)
     x = MaxPooling2D((3, 3), strides=(2, 2))(x)
 
-    x = conv_block(x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1))
-    x = identity_block(x, 3, [64, 64, 256], stage=2, block='b')
-    x = identity_block(x, 3, [64, 64, 256], stage=2, block='c')
+    x = conv_block(x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1),bn_axis=bn_axis)
+    x = identity_block(x, 3, [64, 64, 256], stage=2, block='b',bn_axis=bn_axis)
+    x = identity_block(x, 3, [64, 64, 256], stage=2, block='c',bn_axis=bn_axis)
 
-    x = conv_block(x, 3, [128, 128, 512], stage=3, block='a')
-    x = identity_block(x, 3, [128, 128, 512], stage=3, block='b')
-    x = identity_block(x, 3, [128, 128, 512], stage=3, block='c')
+    x = conv_block(x, 3, [128, 128, 512], stage=3, block='a',bn_axis=bn_axis)
+    x = identity_block(x, 3, [128, 128, 512], stage=3, block='b',bn_axis=bn_axis)
+    x = identity_block(x, 3, [128, 128, 512], stage=3, block='c',bn_axis=bn_axis)
 
-    x = conv_block(x, 3, [256, 256, 1024], stage=4, block='a')
-    x = identity_block(x, 3, [256, 256, 1024], stage=4, block='b')
-    x = identity_block(x, 3, [256, 256, 1024], stage=4, block='c')
+    x = conv_block(x, 3, [256, 256, 1024], stage=4, block='a',bn_axis=bn_axis)
+    x = identity_block(x, 3, [256, 256, 1024], stage=4, block='b',bn_axis=bn_axis)
+    x = identity_block(x, 3, [256, 256, 1024], stage=4, block='c',bn_axis=bn_axis)
 
-    x = conv_block(x, 3, [512, 512, 2048], stage=5, block='a')
-    x = identity_block(x, 3, [512, 512, 2048], stage=5, block='b')
-    x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c')
+    x = conv_block(x, 3, [512, 512, 2048], stage=5, block='a',bn_axis=bn_axis)
+    x = identity_block(x, 3, [512, 512, 2048], stage=5, block='b',bn_axis=bn_axis)
+    x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c',bn_axis=bn_axis)
     #print(x)
     #x = AveragePooling2D((7, 7), name='avg_pool')(x)
 

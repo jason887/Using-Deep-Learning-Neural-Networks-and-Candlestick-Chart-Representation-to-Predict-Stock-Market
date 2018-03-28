@@ -43,7 +43,9 @@ def build_vgg_data(input, ratio):
     # copy_tree(source_path, train_folder)
     num_files_train_A = sum([len(files) for r, d, files in os.walk("{}/A".format(train_folder))])
     print("numoffilesA : {}".format(num_files_train_A))
-    for i
+    files_A = [file for file in os.listdir("{}/A".format(train_folder)) if os.path.isfile(os.path.join(dir, file))]
+    for i in range(0, round(num_files_train_A*0.2)-1):
+
 
 if __name__ == "__main__":
     main()
