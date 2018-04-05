@@ -1,85 +1,86 @@
 import subprocess
-#
-# subprocess.call('python resnet200.py -i data/48/2class -d 48 -e 1 -b 8 -o Adam', shell=True)
-# subprocess.call('python resnet200.py -i data/48/2class -d 48 -e 1 -b 8 -o Adadelta', shell=True)
-# subprocess.call('python resnet200.py -i data/48/2class -d 48 -e 1 -b 8 -o Nadam', shell=True)
-# subprocess.call('python resnet200.py -i data/48/2class -d 48 -e 1 -b 8 -o RMSprop', shell=True)
-# subprocess.call('python resnet200.py -i data/48/2class -d 48 -e 1 -b 8 -o SGD', shell=True)
-# subprocess.call('python resnet200.py -i data/48/2class -d 48 -e 1 -b 8 -o Adamax', shell=True)
-# subprocess.call('python resnet200.py -i data/48/2class -d 48 -e 1 -b 8 -o Adagrad', shell=True)
+import os
 
-# subprocess.call('python resnet182.py -i dataset/10 -d 200 -e 1 -b 8 -op Adam', shell=True)
-# subprocess.call('python resnet182.py -i dataset/10 -d 200 -e 1 -b 8 -op Adadelta', shell=True)
-# subprocess.call('python resnet182.py -i dataset/10 -d 200 -e 1 -b 8 -op Nadam', shell=True)
-# subprocess.call('python resnet182.py -i dataset/10 -d 200 -e 1 -b 8 -op RMSprop', shell=True)
-# subprocess.call('python resnet182.py -i dataset/10 -d 200 -e 1 -b 8 -op SGD', shell=True)
-# subprocess.call('python resnet182.py -i dataset/10 -d 200 -e 1 -b 8 -op Adamax', shell=True)
-# subprocess.call('python resnet182.py -i dataset/10 -d 200 -e 1 -b 8 -op Adagrad', shell=True)
+subprocess.call(
+    'python resnet50.py -i blackmulti/20/EWT -d 48 -e 100 -o multiclassresult.txt', shell=True)
+subprocess.call(
+    'python resnet50.py -i blackmulti/20/EIDO -d 48 -e 100 -o multiclassresult.txt', shell=True)
+subprocess.call(
+    'python resnet50.py -i blackmulti/20/FTW -d 48 -e 100 -o multiclassresult.txt', shell=True)
+subprocess.call(
+    'python resnet50.py -i blackmulti/20/IDX -d 48 -e 100 -o multiclassresult.txt', shell=True)
 
-# subprocess.call('python resnet212.py -i data/48/2class -d 48 -e 1 -b 8 -o Adam', shell=True)
-# subprocess.call('python resnet212.py -i data/48/2class -d 48 -e 1 -b 8 -o Adadelta', shell=True)
-# subprocess.call('python resnet212.py -i data/48/2class -d 48 -e 1 -b 8 -o Nadam', shell=True)
-# subprocess.call('python resnet212.py -i data/48/2class -d 48 -e 1 -b 8 -o RMSprop', shell=True)
-# subprocess.call('python resnet212.py -i data/48/2class -d 48 -e 1 -b 8 -o SGD', shell=True)
-# subprocess.call('python resnet212.py -i data/48/2class -d 48 -e 1 -b 8 -o Adamax', shell=True)
-# subprocess.call('python resnet212.py -i data/48/2class -d 48 -e 1 -b 8 -o Adagrad', shell=True)
+subprocess.call(
+    'python resnet50.py -i blackmulti/10/EWT -d 48 -e 100 -o multiclassresult.txt', shell=True)
+subprocess.call(
+    'python resnet50.py -i blackmulti/10/EIDO -d 48 -e 100 -o multiclassresult.txt', shell=True)
+subprocess.call(
+    'python resnet50.py -i blackmulti/10/FTW -d 48 -e 100 -o multiclassresult.txt', shell=True)
+subprocess.call(
+    'python resnet50.py -i blackmulti/10/IDX -d 48 -e 100 -o multiclassresult.txt', shell=True)
 
-# subprocess.call('python resnet152.py -i data/48/2class -d 48 -e 1 -b 8 -o Adam', shell=True)
-# subprocess.call('python resnet152.py -i data/48/2class -d 48 -e 1 -b 8 -o Adadelta', shell=True)
-# subprocess.call('python resnet152.py -i data/48/2class -d 48 -e 1 -b 8 -o Nadam', shell=True)
-# subprocess.call('python resnet152.py -i data/48/2class -d 48 -e 1 -b 8 -o RMSprop', shell=True)
-# subprocess.call('python resnet152.py -i data/48/2class -d 48 -e 1 -b 8 -o SGD', shell=True)
-# subprocess.call('python resnet152.py -i data/48/2class -d 48 -e 1 -b 8 -o Adamax', shell=True)
-# subprocess.call('python resnet152.py -i data/48/2class -d 48 -e 1 -b 8 -o Adagrad', shell=True)
-#
-# subprocess.call('python vgg16.py', shell=True)
-# subprocess.call('python vgg19.py', shell=True)
-# subprocess.call('python resnet50_weight.py', shell=True)
-# subprocess.call('python InceptionResnetV2.py', shell=True)
-# subprocess.call('python InceptionV3.py', shell=True)
-# subprocess.call('python MobileNet.py', shell=True)
-# subprocess.call('python Xception.py', shell=True)
-# subprocess.call('python resnet50.py -i blackdata/20/EWT -d 48 -e 100', shell=True)
-# subprocess.call('python resnet50.py -i blackdata/20/EIDO -d 48 -e 100', shell=True)
-# subprocess.call('python resnet50.py -i blackdata/20/FTW -d 48 -e 100', shell=True)
-# subprocess.call('python resnet50.py -i blackdata/20/IDX -d 48 -e 100', shell=True)
-#
-# subprocess.call('python resnet50.py -i blackdata/10/EWT -d 48 -e 100', shell=True)
-# subprocess.call('python resnet50.py -i blackdata/10/EIDO -d 48 -e 100', shell=True)
-# subprocess.call('python resnet50.py -i blackdata/10/FTW -d 48 -e 100', shell=True)
-# subprocess.call('python resnet50.py -i blackdata/10/IDX -d 48 -e 100', shell=True)
-#
-# subprocess.call('python resnet50.py -i blackdata/5/EWT -d 48 -e 100', shell=True)
-# subprocess.call('python resnet50.py -i blackdata/5/EIDO -d 48 -e 100', shell=True)
-# subprocess.call('python resnet50.py -i blackdata/5/FTW -d 48 -e 100', shell=True)
-# subprocess.call('python resnet50.py -i blackdata/5/IDX -d 48 -e 100', shell=True)
+subprocess.call(
+    'python resnet50.py -i blackmulti/5/EWT -d 48 -e 100 -o multiclassresult.txt', shell=True)
+subprocess.call(
+    'python resnet50.py -i blackmulti/5/EIDO -d 48 -e 100 -o multiclassresult.txt', shell=True)
+subprocess.call(
+    'python resnet50.py -i blackmulti/5/FTW -d 48 -e 100 -o multiclassresult.txt', shell=True)
+subprocess.call(
+    'python resnet50.py -i blackmulti/5/IDX -d 48 -e 100 -o multiclassresult.txt', shell=True)
 
-subprocess.call('python resnet101.py -i blackdata/20/EWT -d 48 -e 100', shell=True)
-subprocess.call('python resnet101.py -i blackdata/20/EIDO -d 48 -e 100', shell=True)
-subprocess.call('python resnet101.py -i blackdata/20/FTW -d 48 -e 100', shell=True)
-subprocess.call('python resnet101.py -i blackdata/20/IDX -d 48 -e 100', shell=True)
+# subprocess.call(
+#     'python resnet101.py -i blackmulti/20/EWT -d 48 -e  100 -o multiclassresult.txt', shell=True)
+# subprocess.call(
+#     'python resnet101.py -i blackmulti/20/EIDO -d 48 -e  100 -o multiclassresult.txt', shell=True)
+# subprocess.call(
+#     'python resnet101.py -i blackmulti/20/FTW -d 48 -e  100 -o multiclassresult.txt', shell=True)
+# subprocess.call(
+#     'python resnet101.py -i blackmulti/20/IDX -d 48 -e  100 -o multiclassresult.txt', shell=True)
 
-subprocess.call('python resnet101.py -i blackdata/10/EWT -d 48 -e 100', shell=True)
-subprocess.call('python resnet101.py -i blackdata/10/EIDO -d 48 -e 100', shell=True)
-subprocess.call('python resnet101.py -i blackdata/10/FTW -d 48 -e 100', shell=True)
-subprocess.call('python resnet101.py -i blackdata/10/IDX -d 48 -e 100', shell=True)
+# subprocess.call(
+#     'python resnet101.py -i blackmulti/10/EWT -d 48 -e  100 -o multiclassresult.txt', shell=True)
+# subprocess.call(
+#     'python resnet101.py -i blackmulti/10/EIDO -d 48 -e  100 -o multiclassresult.txt', shell=True)
+# subprocess.call(
+#     'python resnet101.py -i blackmulti/10/FTW -d 48 -e  100 -o multiclassresult.txt', shell=True)
+# subprocess.call(
+#     'python resnet101.py -i blackmulti/10/IDX -d 48 -e  100 -o multiclassresult.txt', shell=True)
 
-subprocess.call('python resnet101.py -i blackdata/5/EWT -d 48 -e 100', shell=True)
-subprocess.call('python resnet101.py -i blackdata/5/EIDO -d 48 -e 100', shell=True)
-subprocess.call('python resnet101.py -i blackdata/5/FTW -d 48 -e 100', shell=True)
-subprocess.call('python resnet101.py -i blackdata/5/IDX -d 48 -e 100', shell=True)
+# subprocess.call(
+#     'python resnet101.py -i blackmulti/5/EWT -d 48 -e  100 -o multiclassresult.txt', shell=True)
+# subprocess.call(
+#     'python resnet101.py -i blackmulti/5/EIDO -d 48 -e  100 -o multiclassresult.txt', shell=True)
+# subprocess.call(
+#     'python resnet101.py -i blackmulti/5/FTW -d 48 -e  100 -o multiclassresult.txt', shell=True)
+# subprocess.call(
+#     'python resnet101.py -i blackmulti/5/IDX -d 48 -e  100 -o multiclassresult.txt', shell=True)
 
-subprocess.call('python resnet152.py -i blackdata/20/EWT -d 48 -e 100', shell=True)
-subprocess.call('python resnet152.py -i blackdata/20/EIDO -d 48 -e 100', shell=True)
-subprocess.call('python resnet152.py -i blackdata/20/FTW -d 48 -e 100', shell=True)
-subprocess.call('python resnet152.py -i blackdata/20/IDX -d 48 -e 100', shell=True)
+# subprocess.call(
+#     'python resnet152.py -i blackmulti/20/EWT -d 48 -e  100 -o multiclassresult.txt', shell=True)
+# subprocess.call(
+#     'python resnet152.py -i blackmulti/20/EIDO -d 48 -e  100 -o multiclassresult.txt', shell=True)
+# subprocess.call(
+#     'python resnet152.py -i blackmulti/20/FTW -d 48 -e  100 -o multiclassresult.txt', shell=True)
+# subprocess.call(
+#     'python resnet152.py -i blackmulti/20/IDX -d 48 -e  100 -o multiclassresult.txt', shell=True)
 
-subprocess.call('python resnet152.py -i blackdata/10/EWT -d 48 -e 100', shell=True)
-subprocess.call('python resnet152.py -i blackdata/10/EIDO -d 48 -e 100', shell=True)
-subprocess.call('python resnet152.py -i blackdata/10/FTW -d 48 -e 100', shell=True)
-subprocess.call('python resnet152.py -i blackdata/10/IDX -d 48 -e 100', shell=True)
+# subprocess.call(
+#     'python resnet152.py -i blackmulti/10/EWT -d 48 -e  100 -o multiclassresult.txt', shell=True)
+# subprocess.call(
+#     'python resnet152.py -i blackmulti/10/EIDO -d 48 -e  100 -o multiclassresult.txt', shell=True)
+# subprocess.call(
+#     'python resnet152.py -i blackmulti/10/FTW -d 48 -e  100 -o multiclassresult.txt', shell=True)
+# subprocess.call(
+#     'python resnet152.py -i blackmulti/10/IDX -d 48 -e  100 -o multiclassresult.txt', shell=True)
 
-subprocess.call('python resnet152.py -i blackdata/5/EWT -d 48 -e 100', shell=True)
-subprocess.call('python resnet152.py -i blackdata/5/EIDO -d 48 -e 100', shell=True)
-subprocess.call('python resnet152.py -i blackdata/5/FTW -d 48 -e 100', shell=True)
-subprocess.call('python resnet152.py -i blackdata/5/IDX -d 48 -e 100', shell=True)
+# subprocess.call(
+#     'python resnet152.py -i blackmulti/5/EWT -d 48 -e  100 -o multiclassresult.txt', shell=True)
+# subprocess.call(
+#     'python resnet152.py -i blackmulti/5/EIDO -d 48 -e  100 -o multiclassresult.txt', shell=True)
+# subprocess.call(
+#     'python resnet152.py -i blackmulti/5/FTW -d 48 -e  100 -o multiclassresult.txt', shell=True)
+# subprocess.call(
+#     'python resnet152.py -i blackmulti/5/IDX -d 48 -e  100 -o multiclassresult.txt', shell=True)
+
+os.system(
+    'spd-say --voice-type female3 "hahahahahaha" --rate -50 --pitch 50')

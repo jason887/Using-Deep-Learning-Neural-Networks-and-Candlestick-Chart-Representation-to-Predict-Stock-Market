@@ -118,11 +118,11 @@ def image2dataset(input, label_file):
         if filename is not '':
             # print(filename[:1])
             if filename[:1] == "1":
-                copyfile("{}/{}".format(path, filename),
-                         "{}/classes/1/{}".format(path, filename))
+                move("{}/{}".format(path, filename),
+                     "{}/classes/1/{}".format(path, filename))
             elif filename[:1] == "0":
-                copyfile("{}/{}".format(path, filename),
-                         "{}/classes/0/{}".format(path, filename))
+                move("{}/{}".format(path, filename),
+                     "{}/classes/0/{}".format(path, filename))
 
 
 def createLabel(fname, seq_len):
@@ -132,7 +132,7 @@ def createLabel(fname, seq_len):
     filename = fname.split('/')
     # print("{} - {}".format(filename[0], filename[1][:-4]))
     removeOutput("{}_label_{}.txt".format(filename[1][:-4], seq_len))
-    removeOutput('perct_value_{}_{}'.format(filename[1][:-4], seq_len))
+    # removeOutput('perct_value_{}_{}'.format(filename[1][:-4], seq_len))
     # if os.path.exists("{}_label_{}.txt".format(filename[1][:-4],seq_len)):
     #     os.remove("{}_label_{}.txt".format(filename[1][:-4],seq_len))
 
@@ -193,19 +193,21 @@ def ohlc2cs(fname, seq_len, dataset_type):
         if len(c) == int(seq_len):
             # Date,Open,High,Low,Adj Close,Volume
             ohlc = zip(c['Date'], c['Open'], c['High'],
-                               c['Low'], c['Close'], c['Volume'])
+                       c['Low'], c['Close'], c['Volume'])
             my_dpi = 96
-            fig = plt.figure(figsize=(48/my_dpi, 48/my_dpi), dpi=my_dpi)
-            ax1 = plt.subplot2grid((1,1), (0,0))
-            #candlestick2_ohlc(ax1, c['Open'],c['High'],c['Low'],c['Close'], width=0.4, colorup='#77d879', colordown='#db3f3f')
-            candlestick_ohlc(ax1, ohlc, width=0.4, colorup='#77d879', colordown='#db3f3f')
+            fig = plt.figure(figsize=(48 / my_dpi, 48 / my_dpi), dpi=my_dpi)
+            ax1 = plt.subplot2grid((1, 1), (0, 0))
+            # candlestick2_ohlc(ax1, c['Open'],c['High'],c['Low'],c['Close'], width=0.4, colorup='#77d879', colordown='#db3f3f')
+            candlestick_ohlc(ax1, ohlc, width=0.4,
+                             colorup='#77d879', colordown='#db3f3f')
             ax1.grid(False)
             ax1.set_xticklabels([])
             ax1.set_yticklabels([])
             ax1.xaxis.set_visible(False)
             ax1.yaxis.set_visible(False)
             ax1.axis('off')
-            pngfile='dataset/{}/{}/{}/{}-{}.png'.format(seq_len,symbol,dataset_type,fname[11:-4], i)
+            pngfile = 'dataset/{}/{}/{}/{}-{}.png'.format(
+                seq_len, symbol, dataset_type, fname[11:-4], i)
             fig.savefig(pngfile,  pad_inches=0, transparent=False)
             plt.close(fig)
     print("Converting olhc to candlestik finished.")

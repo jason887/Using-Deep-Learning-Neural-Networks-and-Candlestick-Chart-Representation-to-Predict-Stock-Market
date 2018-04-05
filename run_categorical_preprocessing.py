@@ -1,4 +1,5 @@
 import subprocess
+import os
 
 formatters = {
     'RED': '\033[91m',
@@ -6,10 +7,10 @@ formatters = {
     'END': '\033[0m',
 }
 
-symbol = "EWT"
+symbol = "EIDO"
 start_date = "2017-01-01"
 end_date = "2016-12-31"
-windows_length = 20
+windows_length = 5
 
 # get data testing
 print('{RED}\nGet Testing Data{END}'.format(**formatters))
@@ -63,3 +64,5 @@ print('{GREEN}Labelling Testing Data Done\n{END}'.format(**formatters))
 # find . -maxdepth 4 -iname "*.png" | xargs -L1 -I{} convert -flatten +matte -adaptive-resize 200x200! "{}" "{}"
 
 # find . -name "*.png" -exec convert "{}" -alpha off "{}" \;
+os.system(
+    'spd-say --voice-type female3 "your program has finished" --rate -50 --pitch 50')

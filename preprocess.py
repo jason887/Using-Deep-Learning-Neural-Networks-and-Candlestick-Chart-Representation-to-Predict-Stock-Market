@@ -116,20 +116,20 @@ def image2dataset(input, label_file):
         if filename is not '':
             # print(filename[:1])
             if filename[:1] == "A":
-                copyfile("{}/{}".format(path, filename),
-                         "{}/classes/A/{}".format(path, filename))
+                move("{}/{}".format(path, filename),
+                     "{}/classes/A/{}".format(path, filename))
             elif filename[:1] == "B":
-                copyfile("{}/{}".format(path, filename),
-                         "{}/classes/B/{}".format(path, filename))
+                move("{}/{}".format(path, filename),
+                     "{}/classes/B/{}".format(path, filename))
             elif filename[:1] == "C":
-                copyfile("{}/{}".format(path, filename),
-                         "{}/classes/C/{}".format(path, filename))
+                move("{}/{}".format(path, filename),
+                     "{}/classes/C/{}".format(path, filename))
             elif filename[:1] == "D":
-                copyfile("{}/{}".format(path, filename),
-                         "{}/classes/D/{}".format(path, filename))
+                move("{}/{}".format(path, filename),
+                     "{}/classes/D/{}".format(path, filename))
             elif filename[:1] == "E":
-                copyfile("{}/{}".format(path, filename),
-                         "{}/classes/E/{}".format(path, filename))
+                move("{}/{}".format(path, filename),
+                     "{}/classes/E/{}".format(path, filename))
 
 
 def createLabel(fname, seq_len):
@@ -139,7 +139,7 @@ def createLabel(fname, seq_len):
     filename = fname.split('/')
     # print("{} - {}".format(filename[0], filename[1][:-4]))
     removeOutput("{}_label_{}.txt".format(filename[1][:-4], seq_len))
-    removeOutput('perct_value_{}_{}'.format(filename[1][:-4], seq_len))
+    # removeOutput('perct_value_{}_{}'.format(filename[1][:-4], seq_len))
     # if os.path.exists("{}_label_{}.txt".format(filename[1][:-4],seq_len)):
     #     os.remove("{}_label_{}.txt".format(filename[1][:-4],seq_len))
 
@@ -169,8 +169,8 @@ def createLabel(fname, seq_len):
             #print("{} / {} = {}".format(sizeincrease,starting,diff*100))
             # print("=============")
             perct = diff * 100
-            with open('perct_value_{}_{}'.format(filename[1][:-4], seq_len), 'a') as f:
-                f.write("{}\n".format(perct))
+            # with open('perct_value_{}_{}'.format(filename[1][:-4], seq_len), 'a') as f:
+            #     f.write("{}\n".format(perct))
             # if isnan(perct):
             #     perct = 0
             # belong to ftse

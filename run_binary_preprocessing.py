@@ -63,3 +63,4 @@ print('{GREEN}Labelling Testing Data Done\n{END}'.format(**formatters))
 # find . -maxdepth 4 -iname "*.png" | xargs -L1 -I{} convert -flatten +matte -adaptive-resize 200x200! "{}" "{}"
 
 # find . -name "*.png" -exec convert "{}" -alpha off "{}" \;
+os.system('spd-say --voice-type female3 "your program has finished"')
