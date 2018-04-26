@@ -71,8 +71,8 @@ def fetch_yahoo_data(ticker, start_date, end_date, fname, max_attempt, check_exi
         for attempt in range(max_attempt):
             time.sleep(2)
             try:
-                dat = data.DataReader(''.join("{}".format(
-                    ticker)), 'yahoo', start_date, end_date)
+                dat = data.get_data_yahoo(''.join("{}".format(
+                    ticker)),  start=start_date, end=end_date)
                 dat.to_csv(fname)
             except Exception as e:
                 if attempt < max_attempt - 1:

@@ -1,4 +1,5 @@
 import subprocess
+import os
 
 formatters = {
     'RED': '\033[91m',
@@ -6,22 +7,24 @@ formatters = {
     'END': '\033[0m',
 }
 
-symbol = "EWT"
+symbol = "IDX"
 start_date = "2017-01-01"
 end_date = "2016-12-31"
 windows_length = 20
+download_data = False
 
-# get data testing
-print('{RED}\nGet Testing Data{END}'.format(**formatters))
-subprocess.call(
-    'python get_data.py -sd {} -t {} -s yahoo -p testing'.format(start_date, symbol), shell=True)
-print('{GREEN}Get Testing Data Done\n{END}'.format(**formatters))
+if download_data:
+    # get data testing
+    print('{RED}\nGet Testing Data{END}'.format(**formatters))
+    subprocess.call(
+        'python get_data.py -sd {} -t {} -s yahoo -p testing'.format(start_date, symbol), shell=True)
+    print('{GREEN}Get Testing Data Done\n{END}'.format(**formatters))
 
-# get data testing
-print('{RED}\nGet Training Data{END}'.format(**formatters))
-subprocess.call(
-    'python get_data.py -ed {} -t {} -s yahoo -p training'.format(end_date, symbol), shell=True)
-print('{GREEN}Get Training Data Done\n{END}'.format(**formatters))
+    # get data testing
+    print('{RED}\nGet Training Data{END}'.format(**formatters))
+    subprocess.call(
+        'python get_data.py -ed {} -t {} -s yahoo -p training'.format(end_date, symbol), shell=True)
+    print('{GREEN}Get Training Data Done\n{END}'.format(**formatters))
 
 # create label training
 print('{RED}\nCreate Label Training Data{END}'.format(**formatters))
