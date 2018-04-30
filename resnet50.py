@@ -1,13 +1,10 @@
-import tensorflow as tf # uncomment this for using GPU
+import tensorflow as tf
 import os
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 config = tf.ConfigProto()
-# maximun alloc gpu50% of MEM
-# config.gpu_options.per_process_gpu_memory_fraction = 0.5
-#allocate dynamically
 config.gpu_options.allow_growth = True
-sess = tf.Session(config = config)
+sess = tf.Session(config=config)
 
 
 import math
@@ -44,6 +41,7 @@ def build_dataset(data_directory, img_width):
     label = np_utils.to_categorical(y, nb_classes)
     return feature, label, nb_classes
 
+
 def identity_block(input_tensor, kernel_size, filters, stage, block):
     """The identity block is the block that has no conv layer at shortcut.
     # Arguments
@@ -78,6 +76,7 @@ def identity_block(input_tensor, kernel_size, filters, stage, block):
     x = add([x, input_tensor])
     x = Activation('relu')(x)
     return x
+
 
 def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2)):
     """A block that has a conv layer at shortcut.
@@ -117,17 +116,19 @@ def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2))
 
     shortcut = Conv2D(filters3, (1, 1), strides=strides,
                       name=conv_name_base + '1')(input_tensor)
-    shortcut = BatchNormalization(axis=bn_axis, name=bn_name_base + '1')(shortcut)
+    shortcut = BatchNormalization(
+        axis=bn_axis, name=bn_name_base + '1')(shortcut)
 
     x = add([x, shortcut])
     x = Activation('relu')(x)
     return x
 
+
 def build_model(SHAPE, nb_classes, bn_axis, seed=None):
     # We can't use ResNet50 directly, as it might cause a negative dimension
     # error.
     if seed:
-          np.random.seed(seed)
+        np.random.seed(seed)
 
     input_layer = Input(shape=SHAPE)
 
@@ -153,13 +154,11 @@ def build_model(SHAPE, nb_classes, bn_axis, seed=None):
     x = identity_block(x, 3, [256, 256, 1024], stage=4, block='e')
     x = identity_block(x, 3, [256, 256, 1024], stage=4, block='f')
 
-
     x = conv_block(x, 3, [512, 512, 2048], stage=5, block='a')
     x = identity_block(x, 3, [512, 512, 2048], stage=5, block='b')
     x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c')
     # print("x nya {}".format(x))
     # x = AveragePooling2D((7, 7), name='avg_pool')(x)
-
 
     x = Flatten()(x)
     x = Dense(nb_classes, activation='softmax', name='fc10')(x)
@@ -167,6 +166,7 @@ def build_model(SHAPE, nb_classes, bn_axis, seed=None):
     model = Model(input_layer, x)
 
     return model
+
 
 def main():
     start_time = time.monotonic()
@@ -192,59 +192,65 @@ def main():
     channel = args.channel
     epochs = args.epochs
     batch_size = args.batch_size
-    SHAPE = (img_width, img_height ,channel)
+    SHAPE = (img_width, img_height, channel)
     bn_axis = 3 if K.image_dim_ordering() == 'tf' else 1
 
     data_directory = args.input
     period_name = data_directory.split('/')
 
-    print ("loading dataset")
-    X_train, Y_train, nb_classes= build_dataset("{}/training".format(data_directory), args.dimension)
-    X_test, Y_test, nb_classes= build_dataset("{}/testing".format(data_directory), args.dimension)
+    print("loading dataset")
+    X_train, Y_train, nb_classes = build_dataset(
+        "{}/training".format(data_directory), args.dimension)
+    X_test, Y_test, nb_classes = build_dataset(
+        "{}/testing".format(data_directory), args.dimension)
     print("number of classes : {}".format(nb_classes))
 
-    model = build_model(SHAPE,nb_classes,bn_axis)
+    model = build_model(SHAPE, nb_classes, bn_axis)
 
-    model.compile(optimizer=Adam(lr=1.0e-4), loss='categorical_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer=Adam(lr=1.0e-4),
+                  loss='categorical_crossentropy', metrics=['accuracy'])
 
     # Fit the model
     model.fit(X_train, Y_train, batch_size=batch_size, epochs=epochs)
 
     # Save Model or creates a HDF5 file
-    model.save('{}epochs_{}period_{}dimension_resnet50_model.h5'.format(epochs,period_name[2],period_name[1]), overwrite=True)
+    model.save('{}epochs_{}period_{}dimension_resnet50_model.h5'.format(
+        epochs, period_name[2], period_name[1]), overwrite=True)
     # del model  # deletes the existing model
     predicted = model.predict(X_test)
-    y_pred = np.argmax(predicted,axis=1)
-    Y_test = np.argmax(Y_test, axis = 1)
+    y_pred = np.argmax(predicted, axis=1)
+    Y_test = np.argmax(Y_test, axis=1)
     cm = confusion_matrix(Y_test, y_pred)
     report = classification_report(Y_test, y_pred)
-    tn=cm[0][0]
-    fn=cm[1][0]
-    tp=cm[1][1]
-    fp=cm[0][1]
-    if tp==0:
-        tp=1
-    if tn==0:
-        tn=1
-    if fp==0:
-        fp=1
-    if fn==0:
-        fn=1
-    TPR=float(tp)/(float(tp)+float(fn))
-    FPR=float(fp)/(float(fp)+float(tn))
-    accuracy = round((float(tp) + float(tn))/(float(tp) + float(fp) + float(fn) + float(tn)),3)
-    specitivity=round(float(tn)/(float(tn) + float(fp)),3)
-    sensitivity = round(float(tp)/(float(tp) + float(fn)),3)
+    tn = cm[0][0]
+    fn = cm[1][0]
+    tp = cm[1][1]
+    fp = cm[0][1]
+    if tp == 0:
+        tp = 1
+    if tn == 0:
+        tn = 1
+    if fp == 0:
+        fp = 1
+    if fn == 0:
+        fn = 1
+    TPR = float(tp)/(float(tp)+float(fn))
+    FPR = float(fp)/(float(fp)+float(tn))
+    accuracy = round((float(tp) + float(tn))/(float(tp) +
+                                              float(fp) + float(fn) + float(tn)), 3)
+    specitivity = round(float(tn)/(float(tn) + float(fp)), 3)
+    sensitivity = round(float(tp)/(float(tp) + float(fn)), 3)
     mcc = round((float(tp)*float(tn) - float(fp)*float(fn))/math.sqrt(
-                                                                (float(tp)+float(fp))
-                                                                *(float(tp)+float(fn))
-                                                                *(float(tn)+float(fp))
-                                                                *(float(tn)+float(fn))
-                                                                ),3)
+        (float(tp)+float(fp))
+        * (float(tp)+float(fn))
+        * (float(tn)+float(fp))
+        * (float(tn)+float(fn))
+    ), 3)
 
-    f_output = open(args.output,'a')
+    f_output = open(args.output, 'a')
     f_output.write('=======\n')
-    f_output.write('{}epochs_{}period_{}dimension_resnet50\n'.format(epochs,period_name[2],period_name[1]))
+    f_output.write('{}epochs_{}period_{}dimension_resnet50\n'.format(
+        epochs, period_name[2], period_name[1]))
     f_output.write('TN: {}\n'.format(tn))
     f_output.write('FN: {}\n'.format(fn))
     f_output.write('TP: {}\n'.format(tp))
@@ -260,6 +266,7 @@ def main():
     f_output.close()
     end_time = time.monotonic()
     print("Duration : {}".format(timedelta(seconds=end_time - start_time)))
+
 
 if __name__ == "__main__":
     main()
