@@ -200,9 +200,9 @@ def main():
 
     print("loading dataset")
     X_train, Y_train, nb_classes = build_dataset(
-        "{}/training".format(data_directory), args.dimension)
+        "{}/training/classes".format(data_directory), args.dimension)
     X_test, Y_test, nb_classes = build_dataset(
-        "{}/testing".format(data_directory), args.dimension)
+        "{}/testing/classes".format(data_directory), args.dimension)
     print("number of classes : {}".format(nb_classes))
 
     model = build_model(SHAPE, nb_classes, bn_axis)
