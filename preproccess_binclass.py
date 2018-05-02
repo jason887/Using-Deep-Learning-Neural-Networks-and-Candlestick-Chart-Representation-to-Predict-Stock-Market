@@ -1,11 +1,8 @@
 import pandas as pd
-import plotly.offline as offline
+import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.finance import *
 import matplotlib.dates as mdates
-# from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
-# offline.init_notebook_mode()
 import glob
 import argparse
 import os
@@ -13,8 +10,7 @@ from shutil import copyfile, move
 from pathlib import Path
 
 # https://github.com/matplotlib/mpl_finance
-from mpl_finance import candlestick_ochl as candlestick
-from matplotlib.finance import candlestick_ohlc
+from mpl_finance import candlestick_ohlc
 
 
 def isnan(value):
@@ -82,32 +78,15 @@ def image2dataset(input, label_file):
         # print(os.getcwd())
         if filename is not '':
             for k, v in label_dict.items():
-                if filename[:-4] == k:
+                splitname = filename.split("_")
+                newname = "{}_{}".format(splitname[0], splitname[1])
+                if newname == k:
                     # print("{} same with {} with v {}".format(filename, k, v))
-                    new_name = "{}{}.png".format(v, filename[:-4])
-                    # print(new_name)
-                    # if v == 'A':
-                    #     count_a += 1
-                    # if v == 'B':
-                    #     count_b += 1
-                    # if v == 'C':
-                    #     count_c += 1
-                    # if v == 'D':
-                    #     count_d += 1
-                    # if v == 'E':
-                    #     count_e += 1
+                    new_name = "{}{}.png".format(v, fnewname)
+
                     os.rename("{}/{}".format(path, filename),
                               "{}/{}".format(path, new_name))
                     break
-    # print("a = {}\nb = {}\nc = {}\nd = {}\ne = {}".format(count_a,count_b,count_c,count_d,count_e))
-            # label = list(label_dict.values())[
-            #     list(label_dict.keys()).index("{}".format(filename[:-4]))]
-            # # name = list(label_dict.keys())[list(label_dict.values()).index("{}".format(label))]
-            # # print("name : {}".format(name))
-            # # print(label)
-            # new_name = "{}{}.png".format(label, filename[:-4])
-            # # print("rename {} to {}".format(filename, new_name))
-            # os.rename("{}/{}".format(path,filename), "{}/{}".format(path,new_name))
 
     folders = ['1', '0']
     for folder in folders:
@@ -189,6 +168,8 @@ def ohlc2cs(fname, seq_len, dataset_type):
     df.reset_index(inplace=True)
     df['Date'] = df['Date'].map(mdates.date2num)
     for i in range(0, len(df)):
+        # normal length - begin
+        # candlestick ohlc normal
         c = df.ix[i:i + int(seq_len) - 1, :]
         if len(c) == int(seq_len):
             # Date,Open,High,Low,Adj Close,Volume
@@ -197,7 +178,6 @@ def ohlc2cs(fname, seq_len, dataset_type):
             my_dpi = 96
             fig = plt.figure(figsize=(48 / my_dpi, 48 / my_dpi), dpi=my_dpi)
             ax1 = plt.subplot2grid((1, 1), (0, 0))
-            # candlestick2_ohlc(ax1, c['Open'],c['High'],c['Low'],c['Close'], width=0.4, colorup='#77d879', colordown='#db3f3f')
             candlestick_ohlc(ax1, ohlc, width=0.4,
                              colorup='#77d879', colordown='#db3f3f')
             ax1.grid(False)
@@ -206,10 +186,264 @@ def ohlc2cs(fname, seq_len, dataset_type):
             ax1.xaxis.set_visible(False)
             ax1.yaxis.set_visible(False)
             ax1.axis('off')
-            pngfile = 'dataset/{}/{}/{}/{}-{}.png'.format(
+            pngfile = 'dataset/{}/{}/{}/{}-{}_normal.png'.format(
                 seq_len, symbol, dataset_type, fname[11:-4], i)
             fig.savefig(pngfile,  pad_inches=0, transparent=False)
             plt.close(fig)
+        # volume plot
+        if len(c) == int(seq_len):
+            # Date,Open,High,Low,Adj Close,Volume
+            ohlc = zip(c['Date'], c['Open'], c['High'],
+                       c['Low'], c['Close'], c['Volume'])
+            my_dpi = 96
+            fig = plt.figure(figsize=(48 / my_dpi, 48 / my_dpi), dpi=my_dpi)
+            ax1 = plt.subplot2grid((1, 1), (0, 0))
+
+            dates = np.asarray(c['Date'])
+            volume = np.asarray(c['Volume'])
+            pos = c['Open']-c['Close'] < 0
+            neg = c['Open']-c['Close'] > 0
+            ax1.bar(dates[pos], volume[pos],
+                    color='#77d879', width=1, align='center')
+            ax1.bar(dates[neg], volume[neg],
+                    color='#db3f3f', width=1, align='center')
+            ax1.grid(False)
+            ax1.set_xticklabels([])
+            ax1.set_yticklabels([])
+            ax1.xaxis.set_visible(False)
+            ax1.yaxis.set_visible(False)
+            ax1.axis('off')
+            pngfile = 'dataset/{}/{}/{}/{}-{}_volume.png'.format(
+                seq_len, symbol, dataset_type, fname[11:-4], i)
+            fig.savefig(pngfile,  pad_inches=0, transparent=False)
+            plt.close(fig)
+
+        # ohlc+volume
+        if len(c) == int(seq_len):
+            # Date,Open,High,Low,Adj Close,Volume
+            ohlc = zip(c['Date'], c['Open'], c['High'],
+                       c['Low'], c['Close'], c['Volume'])
+            my_dpi = 96
+            fig = plt.figure(figsize=(48 / my_dpi, 48 / my_dpi), dpi=my_dpi)
+            ax1 = fig.add_subplot(1, 1, 1)
+            candlestick_ohlc(ax1, ohlc, width=1,
+                             colorup='#77d879', colordown='#db3f3f')
+            ax1.grid(False)
+            ax1.set_xticklabels([])
+            ax1.set_yticklabels([])
+            ax1.xaxis.set_visible(False)
+            ax1.yaxis.set_visible(False)
+            ax1.axis('off')
+            pad = 0.25
+            yl = ax1.get_ylim()
+            ax1.set_ylim(yl[0]-(yl[1]-yl[0])*pad, yl[1])
+            # create the second axis for the volume bar-plot
+            ax2 = ax1.twinx()
+            ax2.set_position(matplotlib.transforms.Bbox(
+                [[0.125, 0.1], [0.9, 0.32]]))
+            dates = np.asarray(c['Date'])
+            volume = np.asarray(c['Volume'])
+            pos = c['Open']-c['Close'] < 0
+            neg = c['Open']-c['Close'] > 0
+            ax2.bar(dates[pos], volume[pos],
+                    color='#77d879', width=1, align='center')
+            ax2.bar(dates[neg], volume[neg],
+                    color='#db3f3f', width=1, align='center')
+            ax2.grid(False)
+            ax2.set_xticklabels([])
+            ax2.set_yticklabels([])
+            ax2.xaxis.set_visible(False)
+            ax2.yaxis.set_visible(False)
+            ax2.axis('off')
+            pngfile = 'dataset/{}/{}/{}/{}-{}_combination.png'.format(
+                seq_len, symbol, dataset_type, fname[11:-4], i)
+            fig.savefig(pngfile,  pad_inches=0, transparent=False)
+            plt.close(fig)
+        # normal length - end
+
+        # length minus 1 - begin
+        c1 = df.ix[i:i + int(seq_len) - 2, :]
+        if len(c1) == int(seq_len)-1:
+            # Date,Open,High,Low,Adj Close,Volume
+            ohlc = zip(c1['Date'], c1['Open'], c1['High'],
+                       c1['Low'], c1['Close'], c1['Volume'])
+            my_dpi = 96
+            fig = plt.figure(figsize=(48 / my_dpi, 48 / my_dpi), dpi=my_dpi)
+            ax1 = plt.subplot2grid((1, 1), (0, 0))
+            candlestick_ohlc(ax1, ohlc, width=0.4,
+                             colorup='#77d879', colordown='#db3f3f')
+            ax1.grid(False)
+            ax1.set_xticklabels([])
+            ax1.set_yticklabels([])
+            ax1.xaxis.set_visible(False)
+            ax1.yaxis.set_visible(False)
+            ax1.axis('off')
+            pngfile = 'dataset/{}/{}/{}/{}-{}_normal_minone.png'.format(
+                seq_len, symbol, dataset_type, fname[11:-4], i)
+            fig.savefig(pngfile,  pad_inches=0, transparent=False)
+            plt.close(fig)
+        # volume plot
+        if len(c1) == int(seq_len)-1:
+            # Date,Open,High,Low,Adj Close,Volume
+            ohlc = zip(c1['Date'], c1['Open'], c1['High'],
+                       c1['Low'], c1['Close'], c1['Volume'])
+            my_dpi = 96
+            fig = plt.figure(figsize=(48 / my_dpi, 48 / my_dpi), dpi=my_dpi)
+            ax1 = plt.subplot2grid((1, 1), (0, 0))
+
+            dates = np.asarray(c1['Date'])
+            volume = np.asarray(c1['Volume'])
+            pos = c1['Open']-c1['Close'] < 0
+            neg = c1['Open']-c1['Close'] > 0
+            ax1.bar(dates[pos], volume[pos],
+                    color='#77d879', width=1, align='center')
+            ax1.bar(dates[neg], volume[neg],
+                    color='#db3f3f', width=1, align='center')
+            ax1.grid(False)
+            ax1.set_xticklabels([])
+            ax1.set_yticklabels([])
+            ax1.xaxis.set_visible(False)
+            ax1.yaxis.set_visible(False)
+            ax1.axis('off')
+            pngfile = 'dataset/{}/{}/{}/{}-{}_volume_minone.png'.format(
+                seq_len, symbol, dataset_type, fname[11:-4], i)
+            fig.savefig(pngfile,  pad_inches=0, transparent=False)
+            plt.close(fig)
+
+        # ohlc+volume
+        if len(c1) == int(seq_len)-1:
+            # Date,Open,High,Low,Adj Close,Volume
+            ohlc = zip(c1['Date'], c1['Open'], c1['High'],
+                       c1['Low'], c1['Close'], c1['Volume'])
+            my_dpi = 96
+            fig = plt.figure(figsize=(48 / my_dpi, 48 / my_dpi), dpi=my_dpi)
+            ax1 = fig.add_subplot(1, 1, 1)
+            candlestick_ohlc(ax1, ohlc, width=1,
+                             colorup='#77d879', colordown='#db3f3f')
+            ax1.grid(False)
+            ax1.set_xticklabels([])
+            ax1.set_yticklabels([])
+            ax1.xaxis.set_visible(False)
+            ax1.yaxis.set_visible(False)
+            ax1.axis('off')
+            pad = 0.25
+            yl = ax1.get_ylim()
+            ax1.set_ylim(yl[0]-(yl[1]-yl[0])*pad, yl[1])
+            # create the second axis for the volume bar-plot
+            ax2 = ax1.twinx()
+            ax2.set_position(matplotlib.transforms.Bbox(
+                [[0.125, 0.1], [0.9, 0.32]]))
+            dates = np.asarray(c1['Date'])
+            volume = np.asarray(c1['Volume'])
+            pos = c1['Open']-c1['Close'] < 0
+            neg = c1['Open']-c1['Close'] > 0
+            ax2.bar(dates[pos], volume[pos],
+                    color='#77d879', width=1, align='center')
+            ax2.bar(dates[neg], volume[neg],
+                    color='#db3f3f', width=1, align='center')
+            ax2.grid(False)
+            ax2.set_xticklabels([])
+            ax2.set_yticklabels([])
+            ax2.xaxis.set_visible(False)
+            ax2.yaxis.set_visible(False)
+            ax2.axis('off')
+            pngfile = 'dataset/{}/{}/{}/{}-{}_combination_minone.png'.format(
+                seq_len, symbol, dataset_type, fname[11:-4], i)
+            fig.savefig(pngfile,  pad_inches=0, transparent=False)
+            plt.close(fig)
+        # length minus 1 - end
+
+        # length plus 1 - begin
+        c2 = df.ix[i:i + int(seq_len), :]
+        if len(c2) == int(seq_len):
+            # Date,Open,High,Low,Adj Close,Volume
+            ohlc = zip(c2['Date'], c2['Open'], c2['High'],
+                       c2['Low'], c2['Close'], c2['Volume'])
+            my_dpi = 96
+            fig = plt.figure(figsize=(48 / my_dpi, 48 / my_dpi), dpi=my_dpi)
+            ax1 = plt.subplot2grid((1, 1), (0, 0))
+            candlestick_ohlc(ax1, ohlc, width=0.4,
+                             colorup='#77d879', colordown='#db3f3f')
+            ax1.grid(False)
+            ax1.set_xticklabels([])
+            ax1.set_yticklabels([])
+            ax1.xaxis.set_visible(False)
+            ax1.yaxis.set_visible(False)
+            ax1.axis('off')
+            pngfile = 'dataset/{}/{}/{}/{}-{}_normal_minone.png'.format(
+                seq_len, symbol, dataset_type, fname[11:-4], i)
+            fig.savefig(pngfile,  pad_inches=0, transparent=False)
+            plt.close(fig)
+        # volume plot
+        if len(c2) == int(seq_len):
+            # Date,Open,High,Low,Adj Close,Volume
+            ohlc = zip(c2['Date'], c2['Open'], c2['High'],
+                       c2['Low'], c2['Close'], c2['Volume'])
+            my_dpi = 96
+            fig = plt.figure(figsize=(48 / my_dpi, 48 / my_dpi), dpi=my_dpi)
+            ax1 = plt.subplot2grid((1, 1), (0, 0))
+
+            dates = np.asarray(c2['Date'])
+            volume = np.asarray(c2['Volume'])
+            pos = c2['Open']-c2['Close'] < 0
+            neg = c2['Open']-c2['Close'] > 0
+            ax1.bar(dates[pos], volume[pos],
+                    color='#77d879', width=1, align='center')
+            ax1.bar(dates[neg], volume[neg],
+                    color='#db3f3f', width=1, align='center')
+            ax1.grid(False)
+            ax1.set_xticklabels([])
+            ax1.set_yticklabels([])
+            ax1.xaxis.set_visible(False)
+            ax1.yaxis.set_visible(False)
+            ax1.axis('off')
+            pngfile = 'dataset/{}/{}/{}/{}-{}_volume_minone.png'.format(
+                seq_len, symbol, dataset_type, fname[11:-4], i)
+            fig.savefig(pngfile,  pad_inches=0, transparent=False)
+            plt.close(fig)
+
+        # ohlc+volume
+        if len(c2) == int(seq_len):
+            # Date,Open,High,Low,Adj Close,Volume
+            ohlc = zip(c2['Date'], c2['Open'], c2['High'],
+                       c2['Low'], c2['Close'], c2['Volume'])
+            my_dpi = 96
+            fig = plt.figure(figsize=(48 / my_dpi, 48 / my_dpi), dpi=my_dpi)
+            ax1 = fig.add_subplot(1, 1, 1)
+            candlestick_ohlc(ax1, ohlc, width=1,
+                             colorup='#77d879', colordown='#db3f3f')
+            ax1.grid(False)
+            ax1.set_xticklabels([])
+            ax1.set_yticklabels([])
+            ax1.xaxis.set_visible(False)
+            ax1.yaxis.set_visible(False)
+            ax1.axis('off')
+            pad = 0.25
+            yl = ax1.get_ylim()
+            ax1.set_ylim(yl[0]-(yl[1]-yl[0])*pad, yl[1])
+            # create the second axis for the volume bar-plot
+            ax2 = ax1.twinx()
+            ax2.set_position(matplotlib.transforms.Bbox(
+                [[0.125, 0.1], [0.9, 0.32]]))
+            dates = np.asarray(c2['Date'])
+            volume = np.asarray(c2['Volume'])
+            pos = c2['Open']-c2['Close'] < 0
+            neg = c2['Open']-c2['Close'] > 0
+            ax2.bar(dates[pos], volume[pos],
+                    color='#77d879', width=1, align='center')
+            ax2.bar(dates[neg], volume[neg],
+                    color='#db3f3f', width=1, align='center')
+            ax2.grid(False)
+            ax2.set_xticklabels([])
+            ax2.set_yticklabels([])
+            ax2.xaxis.set_visible(False)
+            ax2.yaxis.set_visible(False)
+            ax2.axis('off')
+            pngfile = 'dataset/{}/{}/{}/{}-{}_combination_minone.png'.format(
+                seq_len, symbol, dataset_type, fname[11:-4], i)
+            fig.savefig(pngfile,  pad_inches=0, transparent=False)
+            plt.close(fig)
+        # length plus 1 - end
     print("Converting olhc to candlestik finished.")
 
 
