@@ -80,9 +80,10 @@ def image2dataset(input, label_file):
             for k, v in label_dict.items():
                 splitname = filename.split("_")
                 newname = "{}_{}".format(splitname[0], splitname[1])
+                f, e = os.path.splitext(filename)
                 if newname == k:
                     # print("{} same with {} with v {}".format(filename, k, v))
-                    new_name = "{}{}.png".format(v, fnewname)
+                    new_name = "{}{}.png".format(v, f)
 
                     os.rename("{}/{}".format(path, filename),
                               "{}/{}".format(path, new_name))
