@@ -79,8 +79,9 @@ def image2dataset(input, label_file):
         if filename is not '':
             for k, v in label_dict.items():
                 splitname = filename.split("_")
-                newname = "{}_{}".format(splitname[0], splitname[1])
                 f, e = os.path.splitext(filename)
+                print("[DEBUG] - {}".format(splitname))
+                newname = "{}_{}".format(splitname[0], splitname[1])
                 if newname == k:
                     # print("{} same with {} with v {}".format(filename, k, v))
                     new_name = "{}{}.png".format(v, f)
