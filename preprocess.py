@@ -1,8 +1,6 @@
 import pandas as pd
-import plotly.offline as offline
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.finance import *
 import matplotlib.dates as mdates
 # from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 # offline.init_notebook_mode()
@@ -13,7 +11,7 @@ from shutil import copyfile, move
 from pathlib import Path
 
 # https://github.com/matplotlib/mpl_finance
-from mpl_finance import candlestick_ochl as candlestick
+from mpl_finance import candlestick_ochl
 
 
 def isnan(value):

@@ -11,7 +11,7 @@ symbol = "IDX"
 start_date = "2017-01-01"
 end_date = "2016-12-31"
 windows_length = 20
-download_data = False
+download_data = True
 
 if download_data:
     # get data testing
