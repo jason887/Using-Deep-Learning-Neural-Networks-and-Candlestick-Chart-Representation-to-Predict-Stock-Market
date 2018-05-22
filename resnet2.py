@@ -6,6 +6,20 @@ config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 sess = tf.Session(config=config)
 
+# processed 190844, used 190844
+# classes:
+# 0 92189
+# 1 98655
+# train size : 190844
+# base_dir : bigdata/test, n : 48
+# classes : ['0', '1']
+# processed 15492, used 15492
+# classes:
+# 0 6847
+# 1 8645
+# train size : 15492
+# number of classes : 2
+
 
 import math
 import json
@@ -198,8 +212,8 @@ def main():
     model.fit(X_train, Y_train, batch_size=batch_size, epochs=epochs)
 
     # Save Model or creates a HDF5 file
-    model.save('{}epochs_{}period_{}dimension_resnet2_model.h5'.format(
-        epochs, period_name[2], period_name[1]), overwrite=True)
+    model.save('{}epochs_{}batch_resnet2_model.h5'.format(
+        epochs, batch_size), overwrite=True)
     # del model  # deletes the existing model
     predicted = model.predict(X_test)
     y_pred = np.argmax(predicted, axis=1)
@@ -233,8 +247,8 @@ def main():
 
     f_output = open(args.output, 'a')
     f_output.write('=======\n')
-    f_output.write('{}epochs_{}period_{}dimension_resnet2\n'.format(
-        epochs, period_name[2], period_name[1]))
+    f_output.write('{}epochs_{}batch_resnet2\n'.format(
+        epochs, batch_size))
     f_output.write('TN: {}\n'.format(tn))
     f_output.write('FN: {}\n'.format(fn))
     f_output.write('TP: {}\n'.format(tp))
