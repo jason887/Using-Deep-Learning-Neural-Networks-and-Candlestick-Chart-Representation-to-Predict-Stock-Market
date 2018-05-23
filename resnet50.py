@@ -200,9 +200,9 @@ def main():
 
     print("loading dataset")
     X_train, Y_train, nb_classes = build_dataset(
-        "{}/training/classes".format(data_directory), args.dimension)
+        "{}/train".format(data_directory), args.dimension)
     X_test, Y_test, nb_classes = build_dataset(
-        "{}/testing/classes".format(data_directory), args.dimension)
+        "{}/test".format(data_directory), args.dimension)
     print("number of classes : {}".format(nb_classes))
 
     model = build_model(SHAPE, nb_classes, bn_axis)
@@ -214,8 +214,8 @@ def main():
     model.fit(X_train, Y_train, batch_size=batch_size, epochs=epochs)
 
     # Save Model or creates a HDF5 file
-    model.save('{}epochs_{}period_{}dimension_resnet50_model.h5'.format(
-        epochs, period_name[2], period_name[1]), overwrite=True)
+    model.save('{}epochs_{}period_resnet50_model.h5'.format(
+        epochs, batch_size), overwrite=True)
     # del model  # deletes the existing model
     predicted = model.predict(X_test)
     y_pred = np.argmax(predicted, axis=1)
@@ -249,8 +249,8 @@ def main():
 
     f_output = open(args.output, 'a')
     f_output.write('=======\n')
-    f_output.write('{}epochs_{}period_{}dimension_resnet50\n'.format(
-        epochs, period_name[2], period_name[1]))
+    f_output.write('{}epochs_{}batch_resnet50\n'.format(
+        epochs, batch_size))
     f_output.write('TN: {}\n'.format(tn))
     f_output.write('FN: {}\n'.format(fn))
     f_output.write('TP: {}\n'.format(tp))
