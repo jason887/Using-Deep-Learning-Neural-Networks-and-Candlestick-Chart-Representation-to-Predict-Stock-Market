@@ -24,8 +24,8 @@ img_width, img_height = 48, 48
 
 period = 20
 datapath = 'bigdata'
-epochs = sys.argv[1]
-batch_size = sys.argv[16]
+epochs = int(sys.argv[1])
+batch_size = int(sys.argv[2])
 top_model_weights_path = 'imagenet_resnet50_{}_{}_{}_{}.h5'.format(
     period, epochs, batch_size, datapath)
 train_data_dir = '{}/train'.format(datapath)
