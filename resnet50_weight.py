@@ -19,6 +19,14 @@ from keras import applications
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 
+
+def countImage(input):
+    num_file = sum([len(files) for r, d, files in os.walk(input)])
+    num_dir = sum([len(d) for r, d, files in os.walk(input)])
+    print("num of files : {}\nnum of dir : {}".format(num_file, num_dir))
+    return num_file
+
+
 # dimensions of our images.
 img_width, img_height = 48, 48
 
@@ -32,13 +40,6 @@ train_data_dir = '{}/train'.format(datapath)
 validation_data_dir = '{}/test'.format(datapath)
 nb_train_samples = countImage(train_data_dir)
 nb_validation_samples = countImage(validation_data_dir)
-
-
-def countImage(input):
-    num_file = sum([len(files) for r, d, files in os.walk(input)])
-    num_dir = sum([len(d) for r, d, files in os.walk(input)])
-    print("num of files : {}\nnum of dir : {}".format(num_file, num_dir))
-    return num_file
 
 
 def save_bottlebeck_features():
