@@ -1,5 +1,6 @@
 import tensorflow as tf
 import os
+import sys
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 config = tf.ConfigProto()
@@ -15,26 +16,35 @@ from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
 from keras.layers import Dropout, Flatten, Dense
 from keras import applications
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report
 
 # dimensions of our images.
 img_width, img_height = 48, 48
 
-period = 5
-symbol = 'EWT'
+period = 20
+datapath = 'bigdata'
+epochs = sys.argv[1]
+batch_size = sys.argv[16]
+top_model_weights_path = 'imagenet_resnet50_{}_{}_{}_{}.h5'.format(
+    period, epochs, batch_size, datapath)
+train_data_dir = '{}/train'.format(datapath)
+validation_data_dir = '{}/test'.format(datapath)
+nb_train_samples = countImage(train_data_dir)
+nb_validation_samples = countImage(validation_data_dir)
 
-top_model_weights_path = 'bottleneck_fc_model_resnet50_{}.h5'.format(period)
-train_data_dir = 'dataset/{}/{}/training'.format(period,symbol)
-validation_data_dir = 'dataset/{}/{}/testing'.format(period,symbol)
-nb_train_samples = 4144 #4144
-nb_validation_samples = 272 #224
-epochs = 100
-batch_size = 16
+
+def countImage(input):
+    num_file = sum([len(files) for r, d, files in os.walk(input)])
+    num_dir = sum([len(d) for r, d, files in os.walk(input)])
+    print("num of files : {}\nnum of dir : {}".format(num_file, num_dir))
+    return num_file
 
 
 def save_bottlebeck_features():
-    datagen = ImageDataGenerator(rescale=1. / 255)
+    datagen = ImageDataGenerator()
 
-    # build the VGG16 network
+    # build the ResNet50 network
     model = applications.ResNet50(include_top=False, weights='imagenet')
 
     generator = datagen.flow_from_directory(
@@ -44,8 +54,9 @@ def save_bottlebeck_features():
         class_mode=None,
         shuffle=False)
     bottleneck_features_train = model.predict_generator(
-        generator, nb_train_samples // batch_size)
-    np.save('bottleneck_features_train_resnet50_{}'.format(period), bottleneck_features_train)
+        generator, nb_train_samples)
+    np.save('bottleneck_features_train_resnet50_{}_{}_{}_{}'.format(
+        period, epochs, batch_size, datapath), bottleneck_features_train)
 
     generator = datagen.flow_from_directory(
         validation_data_dir,
@@ -54,17 +65,19 @@ def save_bottlebeck_features():
         class_mode=None,
         shuffle=False)
     bottleneck_features_validation = model.predict_generator(
-        generator, nb_validation_samples // batch_size)
-    np.save('bottleneck_features_validation_resnet50_{}'.format(period),
+        generator, nb_validation_samples)
+    np.save('bottleneck_features_validation_resnet50_{}_{}_{}_{}'.format(period, epochs, batch_size, datapath),
             bottleneck_features_validation)
 
 
 def train_top_model():
-    train_data = np.load('bottleneck_features_train_resnet50_{}.npy'.format(period))
+    train_data = np.load(
+        'bottleneck_features_train_resnet50_{}_{}_{}_{}.npy'.format(period, epochs, batch_size, datapath))
     train_labels = np.array(
         [0] * (nb_train_samples // 2) + [1] * (nb_train_samples // 2))
 
-    validation_data = np.load('bottleneck_features_validation_resnet50_{}.npy'.format(period))
+    validation_data = np.load(
+        'bottleneck_features_validation_resnet50_{}_{}_{}_{}.npy'.format(period, epochs, batch_size, datapath))
     validation_labels = np.array(
         [0] * (nb_validation_samples // 2) + [1] * (nb_validation_samples // 2))
 
@@ -83,20 +96,49 @@ def train_top_model():
               validation_data=(validation_data, validation_labels))
 
     model.save_weights(top_model_weights_path)
-    train_score = model.evaluate(train_data, train_labels, verbose=1)
-    # print('Overall Train score: {}'.format(train_score[0]))
-    # print('Overall Train accuracy: {}'.format(train_score[1]))
+    predicted = model.predict(validation_data)
+    y_pred = np.argmax(predicted, axis=1)
+    Y_test = np.argmax(validation_labels, axis=1)
+    cm = confusion_matrix(Y_test, y_pred)
+    report = classification_report(Y_test, y_pred)
+    tn = cm[0][0]
+    fn = cm[1][0]
+    tp = cm[1][1]
+    fp = cm[0][1]
+    if tp == 0:
+        tp = 1
+    if tn == 0:
+        tn = 1
+    if fp == 0:
+        fp = 1
+    if fn == 0:
+        fn = 1
+    TPR = float(tp)/(float(tp)+float(fn))
+    FPR = float(fp)/(float(fp)+float(tn))
+    accuracy = round((float(tp) + float(tn))/(float(tp) +
+                                              float(fp) + float(fn) + float(tn)), 3)
+    specitivity = round(float(tn)/(float(tn) + float(fp)), 3)
+    sensitivity = round(float(tp)/(float(tp) + float(fn)), 3)
+    mcc = round((float(tp)*float(tn) - float(fp)*float(fn))/math.sqrt(
+        (float(tp)+float(fp))
+        * (float(tp)+float(fn))
+        * (float(tn)+float(fp))
+        * (float(tn)+float(fn))
+    ), 3)
 
-    test_score = model.evaluate(validation_data, validation_labels, verbose=1)
-    # print('Overall Test score: {}'.format(test_score[0]))
-    # print('Overall Test accuracy: {}'.format(test_score[1]))
-
-    f_output = open("{}_{}.txt".format(top_model_weights_path,period),'a')
+    f_output = open("outpuresult.txt", 'a')
     f_output.write('=======\n')
-    f_output.write('Overall Train score: {}\n'.format(train_score[0]))
-    f_output.write('Overall Train accuracy: {}\n'.format(train_score[1]))
-    f_output.write('Overall Test score: {}\n'.format(test_score[0]))
-    f_output.write('Overall Test accuracy: {}\n'.format(test_score[1]))
+    f_output.write('TN: {}\n'.format(tn))
+    f_output.write('FN: {}\n'.format(fn))
+    f_output.write('TP: {}\n'.format(tp))
+    f_output.write('FP: {}\n'.format(fp))
+    f_output.write('TPR: {}\n'.format(TPR))
+    f_output.write('FPR: {}\n'.format(FPR))
+    f_output.write('accuracy: {}\n'.format(accuracy))
+    f_output.write('specitivity: {}\n'.format(specitivity))
+    f_output.write("sensitivity : {}\n".format(sensitivity))
+    f_output.write("mcc : {}\n".format(mcc))
+    f_output.write("{}".format(report))
     f_output.write('=======\n')
     f_output.close()
 
