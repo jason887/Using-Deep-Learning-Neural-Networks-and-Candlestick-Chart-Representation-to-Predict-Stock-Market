@@ -31,7 +31,7 @@ def countImage(input):
 img_width, img_height = 48, 48
 
 period = 20
-datapath = 'bigdata'
+datapath = sys.argv[3]
 epochs = int(sys.argv[1])
 batch_size = int(sys.argv[2])
 top_model_weights_path = 'imagenet_resnet50_{}_{}_{}_{}.h5'.format(
