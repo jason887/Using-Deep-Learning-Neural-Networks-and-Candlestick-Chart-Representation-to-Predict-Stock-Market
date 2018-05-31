@@ -24,7 +24,7 @@ def countImage(input):
     num_file = sum([len(files) for r, d, files in os.walk(input)])
     num_dir = sum([len(d) for r, d, files in os.walk(input)])
     print("num of files : {}\nnum of dir : {}".format(num_file, num_dir))
-    return num_file
+    return int(num_file)
 
 
 # dimensions of our images.
@@ -43,7 +43,7 @@ nb_validation_samples = countImage(validation_data_dir)
 
 
 def save_bottlebeck_features():
-    datagen = ImageDataGenerator()
+    datagen = ImageDataGenerator(rescale=1. / 255)
 
     # build the ResNet50 network
     model = applications.ResNet50(include_top=False, weights='imagenet')
@@ -55,7 +55,7 @@ def save_bottlebeck_features():
         class_mode=None,
         shuffle=False)
     bottleneck_features_train = model.predict_generator(
-        generator, nb_train_samples)
+        generator, nb_train_samples // batch_size)
     np.save('bottleneck_features_train_resnet50_{}_{}_{}_{}'.format(
         period, epochs, batch_size, datapath), bottleneck_features_train)
 
@@ -66,7 +66,7 @@ def save_bottlebeck_features():
         class_mode=None,
         shuffle=False)
     bottleneck_features_validation = model.predict_generator(
-        generator, nb_validation_samples)
+        generator, nb_validation_samples // batch_size)
     np.save('bottleneck_features_validation_resnet50_{}_{}_{}_{}'.format(period, epochs, batch_size, datapath),
             bottleneck_features_validation)
 
