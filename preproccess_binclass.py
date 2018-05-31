@@ -36,14 +36,14 @@ def main():
     parser.add_argument('-lf', '--label_file',
                         help='a label_file')
     parser.add_argument('-d', '--dimension',
-                        help='a dimension value')
+                        help='a dimension value', type=int, default=48)
     parser.add_argument('-t', '--dataset_type',
                         help='training or testing datasets')
     parser.add_argument('-m', '--mode',
                         help='mode of preprocessing data', required=True)
     args = parser.parse_args()
     if args.mode == 'ohlc2cs':
-        ohlc2cs(args.input, args.seq_len, args.dataset_type)
+        ohlc2cs(args.input, args.seq_len, args.dataset_type, args.dimension)
     if args.mode == 'createLabel':
         createLabel(args.input, args.seq_len)
     if args.mode == 'img2dt':
@@ -152,7 +152,7 @@ def countImage(input):
     print("num of files : {}\nnum of dir : {}".format(num_file, num_dir))
 
 
-def ohlc2cs(fname, seq_len, dataset_type):
+def ohlc2cs(fname, seq_len, dataset_type, dimension):
     # python preprocess.py -m ohlc2cs -l 20 -i stockdatas/EWT_testing.csv -t testing
     print("Converting olhc to candlestick")
     symbol = fname.split('_')[0]
@@ -227,7 +227,8 @@ def ohlc2cs(fname, seq_len, dataset_type):
             ohlc = zip(c['Date'], c['Open'], c['High'],
                        c['Low'], c['Close'], c['Volume'])
             my_dpi = 96
-            fig = plt.figure(figsize=(48 / my_dpi, 48 / my_dpi), dpi=my_dpi)
+            fig = plt.figure(figsize=(dimension / my_dpi,
+                                      dimension / my_dpi), dpi=my_dpi)
             ax1 = fig.add_subplot(1, 1, 1)
             candlestick_ohlc(ax1, ohlc, width=1,
                              colorup='#77d879', colordown='#db3f3f')
