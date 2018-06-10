@@ -15,6 +15,7 @@ from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
 from keras.layers import Dropout, Flatten, Dense
 from keras import applications
+from keras import optimizers
 import sys
 
 
@@ -45,25 +46,25 @@ def save_bottlebeck_features():
     # build the VGG16 network
     model = applications.VGG16(include_top=False, weights='imagenet')
 
-    generator = datagen.flow_from_directory(
+    train_generator = datagen.flow_from_directory(
         train_data_dir,
         target_size=(img_width, img_height),
         batch_size=batch_size,
         class_mode=None,
         shuffle=False)
     bottleneck_features_train = model.predict_generator(
-        generator, nb_train_samples // batch_size)
+        train_generator, nb_train_samples // batch_size)
     np.save('bottleneck_features_train_vgg16_{}'.format(
         period), bottleneck_features_train)
 
-    generator = datagen.flow_from_directory(
+    validation_generator = datagen.flow_from_directory(
         validation_data_dir,
         target_size=(img_width, img_height),
         batch_size=batch_size,
         class_mode=None,
         shuffle=False)
     bottleneck_features_validation = model.predict_generator(
-        generator, nb_validation_samples // batch_size)
+        validation_generator, nb_validation_samples // batch_size)
     np.save('bottleneck_features_validation_vgg16_{}'.format(period),
             bottleneck_features_validation)
 
@@ -85,8 +86,8 @@ def train_top_model():
     model.add(Dropout(0.5))
     model.add(Dense(1, activation='sigmoid'))
 
-    model.compile(optimizer='rmsprop',
-                  loss='categorical_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer=optimizers.SGD(lr=1e-4, momentum=0.9),
+                  loss='binary_crossentropy', metrics=['accuracy'])
 
     model.fit(train_data, train_labels,
               epochs=epochs,
