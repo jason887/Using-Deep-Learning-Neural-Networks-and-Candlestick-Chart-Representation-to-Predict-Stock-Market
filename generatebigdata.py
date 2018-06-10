@@ -2,58 +2,64 @@ import os
 from shutil import copyfile
 
 
-def cre8outputdir(pathdir):
+def cre8outputdir(pathdir, targetdir):
     # create folder output
-    if not os.path.exists("{}/bigdata".format(pathdir)):
-        os.mkdir("{}/bigdata".format(pathdir))
+    if not os.path.exists("{}/{}".format(pathdir, targetdir)):
+        os.mkdir("{}/{}".format(pathdir, targetdir))
 
-    if not os.path.exists("{}/bigdata/train".format(pathdir)):
-        os.mkdir("{}/bigdata/train".format(pathdir))
+    if not os.path.exists("{}/{}/train".format(pathdir, targetdir)):
+        os.mkdir("{}/{}/train".format(pathdir, targetdir))
 
-    if not os.path.exists("{}/bigdata/test".format(pathdir)):
-        os.mkdir("{}/bigdata/test".format(pathdir))
+    if not os.path.exists("{}/{}/test".format(pathdir, targetdir)):
+        os.mkdir("{}/{}/test".format(pathdir, targetdir))
 
-    if not os.path.exists("{}/bigdata/train/0".format(pathdir)):
-        os.mkdir("{}/bigdata/train/0".format(pathdir))
+    if not os.path.exists("{}/{}/train/0".format(pathdir, targetdir)):
+        os.mkdir("{}/{}/train/0".format(pathdir, targetdir))
 
-    if not os.path.exists("{}/bigdata/train/1".format(pathdir)):
-        os.mkdir("{}/bigdata/train/1".format(pathdir))
+    if not os.path.exists("{}/{}/train/1".format(pathdir, targetdir)):
+        os.mkdir("{}/{}/train/1".format(pathdir, targetdir))
 
-    if not os.path.exists("{}/bigdata/test/0".format(pathdir)):
-        os.mkdir("{}/bigdata/test/0".format(pathdir))
+    if not os.path.exists("{}/{}/test/0".format(pathdir, targetdir)):
+        os.mkdir("{}/{}/test/0".format(pathdir, targetdir))
 
-    if not os.path.exists("{}/bigdata/test/1".format(pathdir)):
-        os.mkdir("{}/bigdata/test/1".format(pathdir))
+    if not os.path.exists("{}/{}/test/1".format(pathdir, targetdir)):
+        os.mkdir("{}/{}/test/1".format(pathdir, targetdir))
 
 
 pathdir = "dataset"
+origindir = "20"
+targetdir = "bigdata2"
 
-cre8outputdir(pathdir)
+cre8outputdir(pathdir, targetdir)
 
 counttest = 0
 counttrain = 0
-for root, dirs, files in os.walk(pathdir):
+for root, dirs, files in os.walk("{}/{}".format(pathdir, origindir)):
     for file in files:
         if file[0] == '0':
             if 'test' in file:
                 origin = "{}/{}".format(root, file)
-                destination = "{}/bigdata/test/0/{}".format(pathdir, file)
+                destination = "{}/{}/test/0/{}".format(
+                    pathdir, targetdir, file)
                 copyfile(origin, destination)
                 counttest += 1
             elif 'train' in file:
                 origin = "{}/{}".format(root, file)
-                destination = "{}/bigdata/train/0/{}".format(pathdir, file)
+                destination = "{}/{}/train/0/{}".format(
+                    pathdir, targetdir, file)
                 copyfile(origin, destination)
                 counttrain += 1
         elif file[0] == '1':
             if 'test' in file:
                 origin = "{}/{}".format(root, file)
-                destination = "{}/bigdata/test/1/{}".format(pathdir, file)
+                destination = "{}/{}/test/1/{}".format(
+                    pathdir, targetdir, file)
                 copyfile(origin, destination)
                 counttest += 1
             elif 'train' in file:
                 origin = "{}/{}".format(root, file)
-                destination = "{}/bigdata/train/1/{}".format(pathdir, file)
+                destination = "{}/{}/train/1/{}".format(
+                    pathdir, targetdir, file)
                 copyfile(origin, destination)
                 counttrain += 1
 

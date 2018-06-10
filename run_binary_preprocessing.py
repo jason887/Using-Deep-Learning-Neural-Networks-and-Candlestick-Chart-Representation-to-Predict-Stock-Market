@@ -11,9 +11,11 @@ formatters = {
 symbol = sys.argv[1]
 start_date = "2017-01-01"
 end_date = "2016-12-31"
+training_start_date = "2015-01-01"
 windows_length = sys.argv[2]
+dimension = sys.argv[3]
 download_data = True
-onlytesting = True
+onlytesting = False
 onlytraining = True
 
 try:
@@ -28,7 +30,7 @@ try:
             # get data testing
             print('{RED}\nGet Training Data{END}'.format(**formatters))
             subprocess.call(
-                'python get_data.py -ed {} -t {} -s yahoo -p training'.format(end_date, symbol), shell=True)
+                'python get_data.py -sd {} -ed {} -t {} -s yahoo -p training'.format(training_start_date, end_date, symbol), shell=True)
             print('{GREEN}Get Training Data Done\n{END}'.format(**formatters))
 except Exception as identifier:
     print(identifier)
@@ -53,15 +55,15 @@ try:
     if onlytraining:
         # convert to candlestick chart training data
         print('{RED}\nConvert Training Data to Candlestik{END}'.format(**formatters))
-        subprocess.call('python preproccess_binclass.py -m ohlc2cs -l {} -i stockdatas/{}_training.csv -t training'.format(
-            windows_length, symbol), shell=True)
+        subprocess.call('python preproccess_binclass.py -m ohlc2cs -l {} -i stockdatas/{}_training.csv -t training -d {}'.format(
+            windows_length, symbol, dimension), shell=True)
         print('{GREEN}Convert Training Data to Candlestik Done\n{END}'.format(
             **formatters))
     if onlytesting:
         # convert to candlestick chart testing data
         print('{RED}\nConvert Testing Data to Candlestik{END}'.format(**formatters))
-        subprocess.call('python preproccess_binclass.py -m ohlc2cs -l {} -i stockdatas/{}_testing.csv -t testing'.format(
-            windows_length, symbol), shell=True)
+        subprocess.call('python preproccess_binclass.py -m ohlc2cs -l {} -i stockdatas/{}_testing.csv -t testing -d {}'.format(
+            windows_length, symbol, dimension), shell=True)
         print('{GREEN}Convert Testing Data to Candlestik Done\n{END}'.format(
             **formatters))
 except Exception as identifier:
