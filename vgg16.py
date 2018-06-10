@@ -30,7 +30,7 @@ img_width, img_height = 200, 200
 
 period = 20
 datapath = sys.argv[1]
-epochs = int(sys.argv[1])
+epochs = int(sys.argv[3])
 batch_size = int(sys.argv[2])
 top_model_weights_path = 'bottleneck_fc_model_vgg16_{}.h5'.format(period)
 train_data_dir = '{}/train'.format(datapath)
