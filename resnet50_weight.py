@@ -18,6 +18,7 @@ from keras.layers import Dropout, Flatten, Dense
 from keras import applications
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
+import math
 
 
 def countImage(input):
@@ -88,7 +89,7 @@ def train_top_model():
     model.add(Dropout(0.5))
     model.add(Dense(1, activation='sigmoid'))
 
-    model.compile(optimizer='rmsprop',
+    model.compile(optimizer=optimizers.SGD(lr=1e-4, momentum=0.9),
                   loss='binary_crossentropy', metrics=['accuracy'])
 
     model.fit(train_data, train_labels,
