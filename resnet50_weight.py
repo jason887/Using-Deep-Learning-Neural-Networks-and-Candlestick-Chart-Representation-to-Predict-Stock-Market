@@ -97,10 +97,10 @@ def train_top_model():
               batch_size=batch_size,
               validation_data=(validation_data, validation_labels))
 
-    model.save_weights(top_model_weights_path)
-    predicted = model.predict(validation_data)
+    model.save(top_model_weights_path)
+    predicted = model.predict_classes(validation_data)
     y_pred = np.argmax(predicted, axis=1)
-    Y_test = np.argmax(validation_labels, axis=1)
+    Y_test = validation_labels  # np.argmax(validation_labels, axis=1)
     cm = confusion_matrix(Y_test, y_pred)
     report = classification_report(Y_test, y_pred)
     tn = cm[0][0]
