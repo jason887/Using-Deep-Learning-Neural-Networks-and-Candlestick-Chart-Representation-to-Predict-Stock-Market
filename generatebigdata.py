@@ -1,5 +1,6 @@
 import os
 from shutil import copyfile
+import sys
 
 
 def cre8outputdir(pathdir, targetdir):
@@ -26,9 +27,9 @@ def cre8outputdir(pathdir, targetdir):
         os.mkdir("{}/{}/test/1".format(pathdir, targetdir))
 
 
-pathdir = "dataset"
-origindir = "20"
-targetdir = "bigdata2"
+pathdir = sys.argv[1]
+origindir = sys.argv[2]
+targetdir = sys.argv[3]
 
 cre8outputdir(pathdir, targetdir)
 

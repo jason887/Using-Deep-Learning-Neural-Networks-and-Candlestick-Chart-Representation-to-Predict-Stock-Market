@@ -10,7 +10,7 @@ from shutil import copyfile, move
 from pathlib import Path
 
 # https://github.com/matplotlib/mpl_finance
-from mpl_finance import candlestick_ohlc
+from mpl_finance import candlestick2_ochl, volume_overlay
 
 
 def isnan(value):
@@ -223,36 +223,27 @@ def ohlc2cs(fname, seq_len, dataset_type, dimension):
 
         # ohlc+volume
         if len(c) == int(seq_len):
-            # Date,Open,High,Low,Adj Close,Volume
-            ohlc = zip(c['Date'], c['Open'], c['High'],
-                       c['Low'], c['Close'], c['Volume'])
             my_dpi = 96
             fig = plt.figure(figsize=(dimension / my_dpi,
                                       dimension / my_dpi), dpi=my_dpi)
             ax1 = fig.add_subplot(1, 1, 1)
-            candlestick_ohlc(ax1, ohlc, width=1,
-                             colorup='#77d879', colordown='#db3f3f')
+            candlestick2_ochl(ax1, c['Open'], c['Close'], c['High'],
+                              c['Low'], width=1,
+                              colorup='#77d879', colordown='#db3f3f')
             ax1.grid(False)
             ax1.set_xticklabels([])
             ax1.set_yticklabels([])
             ax1.xaxis.set_visible(False)
             ax1.yaxis.set_visible(False)
             ax1.axis('off')
-            pad = 0.25
-            yl = ax1.get_ylim()
-            ax1.set_ylim(yl[0]-(yl[1]-yl[0])*pad, yl[1])
+
             # create the second axis for the volume bar-plot
+            # Add a seconds axis for the volume overlay
             ax2 = ax1.twinx()
-            ax2.set_position(matplotlib.transforms.Bbox(
-                [[0.125, 0.1], [0.9, 0.32]]))
-            dates = np.asarray(c['Date'])
-            volume = np.asarray(c['Volume'])
-            pos = c['Open']-c['Close'] < 0
-            neg = c['Open']-c['Close'] > 0
-            ax2.bar(dates[pos], volume[pos],
-                    color='#77d879', width=1, align='center')
-            ax2.bar(dates[neg], volume[neg],
-                    color='#db3f3f', width=1, align='center')
+            # Plot the volume overlay
+            bc = volume_overlay(ax2, c['Open'], c['Close'], c['Volume'],
+                                colorup='#77d879', colordown='#db3f3f', alpha=0.5, width=1)
+            ax2.add_collection(bc)
             ax2.grid(False)
             ax2.set_xticklabels([])
             ax2.set_yticklabels([])

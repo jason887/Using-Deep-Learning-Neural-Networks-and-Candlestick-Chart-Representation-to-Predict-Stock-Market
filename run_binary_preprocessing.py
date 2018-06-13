@@ -15,8 +15,8 @@ training_start_date = "2015-01-01"
 windows_length = sys.argv[2]
 dimension = sys.argv[3]
 download_data = True
-onlytesting = False
-onlytraining = True
+onlytesting = True
+onlytraining = False
 
 try:
     if download_data:
