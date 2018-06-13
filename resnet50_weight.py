@@ -19,6 +19,7 @@ from keras import applications
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 import math
+from keras import optimizers
 
 
 def countImage(input):
@@ -29,7 +30,7 @@ def countImage(input):
 
 
 # dimensions of our images.
-img_width, img_height = 48, 48
+img_width, img_height = 200, 200
 
 period = 20
 datapath = sys.argv[3]
@@ -49,25 +50,25 @@ def save_bottlebeck_features():
     # build the ResNet50 network
     model = applications.ResNet50(include_top=False, weights='imagenet')
 
-    generator = datagen.flow_from_directory(
+    train_generator = datagen.flow_from_directory(
         train_data_dir,
         target_size=(img_width, img_height),
         batch_size=batch_size,
         class_mode=None,
         shuffle=False)
     bottleneck_features_train = model.predict_generator(
-        generator, nb_train_samples // batch_size)
+        train_generator, nb_train_samples // batch_size)
     np.save('bottleneck_features_train_resnet50_{}_{}_{}_{}'.format(
         period, epochs, batch_size, datapath), bottleneck_features_train)
 
-    generator = datagen.flow_from_directory(
+    validation_generator = datagen.flow_from_directory(
         validation_data_dir,
         target_size=(img_width, img_height),
         batch_size=batch_size,
         class_mode=None,
         shuffle=False)
     bottleneck_features_validation = model.predict_generator(
-        generator, nb_validation_samples // batch_size)
+        validation_generator, nb_validation_samples // batch_size)
     np.save('bottleneck_features_validation_resnet50_{}_{}_{}_{}'.format(period, epochs, batch_size, datapath),
             bottleneck_features_validation)
 
@@ -76,12 +77,12 @@ def train_top_model():
     train_data = np.load(
         'bottleneck_features_train_resnet50_{}_{}_{}_{}.npy'.format(period, epochs, batch_size, datapath))
     train_labels = np.array(
-        [0] * (nb_train_samples // 2) + [1] * (nb_train_samples // 2))
+        [0] * (nb_train_samples / 2) + [1] * (nb_train_samples / 2))
 
     validation_data = np.load(
         'bottleneck_features_validation_resnet50_{}_{}_{}_{}.npy'.format(period, epochs, batch_size, datapath))
     validation_labels = np.array(
-        [0] * (nb_validation_samples // 2) + [1] * (nb_validation_samples // 2))
+        [0] * (nb_validation_samples / 2) + [1] * (nb_validation_samples / 2))
 
     model = Sequential()
     model.add(Flatten(input_shape=train_data.shape[1:]))
@@ -98,7 +99,9 @@ def train_top_model():
               validation_data=(validation_data, validation_labels))
 
     model.save(top_model_weights_path)
-    predicted = model.predict_classes(validation_data)
+    predicted = model.predict(validation_data)
+    print(predicted)
+    print(validation_labels)
     y_pred = np.argmax(predicted, axis=1)
     Y_test = validation_labels  # np.argmax(validation_labels, axis=1)
     cm = confusion_matrix(Y_test, y_pred)
@@ -140,7 +143,9 @@ def train_top_model():
     f_output.write('specitivity: {}\n'.format(specitivity))
     f_output.write("sensitivity : {}\n".format(sensitivity))
     f_output.write("mcc : {}\n".format(mcc))
-    f_output.write("{}".format(report))
+    f_output.write("{}\n".format(report))
+    f_output.write("predicted {}\n".format(predicted))
+    f_output.write("validation labels {}\n".format(validation_labels))
     f_output.write('=======\n')
     f_output.close()
 
