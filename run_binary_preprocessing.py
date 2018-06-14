@@ -11,12 +11,12 @@ formatters = {
 symbol = sys.argv[1]
 start_date = "2017-01-01"
 end_date = "2016-12-31"
-training_start_date = "2015-01-01"
+training_start_date = "2000-01-01"
 windows_length = sys.argv[2]
 dimension = sys.argv[3]
 download_data = True
 onlytesting = True
-onlytraining = False
+onlytraining = True
 
 try:
     if download_data:
@@ -73,14 +73,14 @@ try:
     if onlytraining:
         # labelling data training
         print('{RED}\nLabelling Training Data{END}'.format(**formatters))
-        subprocess.call('python preproccess_binclass.py -m img2dt -i dataset/{}/{}/training -lf {}_training_label_{}.txt'.format(
-            windows_length, symbol, symbol, windows_length), shell=True)
+        subprocess.call('python preproccess_binclass.py -m img2dt -i dataset/{}_{}/{}/training -lf {}_training_label_{}.txt'.format(
+            windows_length, dimension, symbol, symbol, windows_length), shell=True)
         print('{GREEN}Labelling Training Data Done\n{END}'.format(**formatters))
     if onlytesting:
         # labelling data testing
         print('{RED}\nLabelling Testing Data{END}'.format(**formatters))
-        subprocess.call('python preproccess_binclass.py -m img2dt -i dataset/{}/{}/testing -lf {}_testing_label_{}.txt'.format(
-            windows_length, symbol, symbol, windows_length), shell=True)
+        subprocess.call('python preproccess_binclass.py -m img2dt -i dataset/{}_{}/{}/testing -lf {}_testing_label_{}.txt'.format(
+            windows_length, dimension, symbol, symbol, windows_length), shell=True)
         print('{GREEN}Labelling Testing Data Done\n{END}'.format(**formatters))
 except Exception as identifier:
     print(identifier)

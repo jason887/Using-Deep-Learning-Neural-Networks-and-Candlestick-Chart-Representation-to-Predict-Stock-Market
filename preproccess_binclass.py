@@ -160,9 +160,9 @@ def ohlc2cs(fname, seq_len, dataset_type, dimension):
     print(symbol)
     path = "{}".format(os.getcwd())
     # print(path)
-    if not os.path.exists("{}/dataset/{}/{}/{}".format(path, seq_len, symbol, dataset_type)):
-        os.makedirs("{}/dataset/{}/{}/{}".format(path,
-                                                 seq_len, symbol, dataset_type))
+    if not os.path.exists("{}/dataset/{}_{}/{}/{}".format(path, seq_len, dimension, symbol, dataset_type)):
+        os.makedirs("{}/dataset/{}_{}/{}/{}".format(path,
+                                                    seq_len, dimension, symbol, dataset_type))
 
     df = pd.read_csv(fname, parse_dates=True, index_col=0)
     df.fillna(0)
@@ -250,8 +250,8 @@ def ohlc2cs(fname, seq_len, dataset_type, dimension):
             ax2.xaxis.set_visible(False)
             ax2.yaxis.set_visible(False)
             ax2.axis('off')
-            pngfile = 'dataset/{}/{}/{}/{}-{}_combination.png'.format(
-                seq_len, symbol, dataset_type, fname[11:-4], i)
+            pngfile = 'dataset/{}_{}/{}/{}/{}-{}_combination.png'.format(
+                seq_len, dimension, symbol, dataset_type, fname[11:-4], i)
             fig.savefig(pngfile,  pad_inches=0, transparent=False)
             plt.close(fig)
         # normal length - end
