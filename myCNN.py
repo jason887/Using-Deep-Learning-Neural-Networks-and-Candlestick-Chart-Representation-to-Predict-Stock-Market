@@ -27,8 +27,9 @@ import sys
 
 import keras
 from keras.layers import Input, Dense, Conv2D, MaxPooling2D, AveragePooling2D, ZeroPadding2D, Flatten, Activation, add
+from keras.layers import Dropout, Flatten
 from keras.layers.normalization import BatchNormalization
-from keras.models import Model
+from keras.models import Model, Sequential
 from keras import initializers
 from keras.engine import Layer, InputSpec
 from keras import backend as K
@@ -64,11 +65,9 @@ def build_model(SHAPE, nb_classes, bn_axis, seed=None):
 
     input_layer = Input(shape=SHAPE)
 
-    classifier = Sequential()
-
     # Step 1
-    classifier.add(Conv2D(32, 3, 3, init='glorot_uniform',
-                          border_mode='same', input_shape=(input_layer), activation='relu'))
+    x = Conv2D(32, 3, 3, init='glorot_uniform',
+               border_mode='same', activation='relu')(input_layer)
     # # Step 2 - Pooling
     # classifier.add(MaxPooling2D(pool_size=(2, 2)))
 
@@ -93,17 +92,17 @@ def build_model(SHAPE, nb_classes, bn_axis, seed=None):
     # classifier.add(Dropout(0.25))
 
     # Step 3 - Flattening
-    classifier.add(Flatten())
+    x = Flatten()(x)
 
     # Step 4 - Full connection
 
-    classifier.add(Dense(output_dim=256, activation='relu'))
+    x = Dense(output_dim=256, activation='relu')(x)
     # Dropout
-    classifier.add(Dropout(0.5))
+    x = Dropout(0.5)(x)
 
-    classifier.add(Dense(output_dim=2, activation='softmax'))
+    x = Dense(output_dim=2, activation='softmax')(x)
 
-    model = Model(input_layer, classifier)
+    model = Model(input_layer, x)
 
     return model
 
@@ -153,8 +152,8 @@ def main():
     model.fit(X_train, Y_train, batch_size=batch_size, epochs=epochs)
 
     # Save Model or creates a HDF5 file
-    model.save('{}epochs_{}batch_cnn_model.h5'.format(
-        epochs, batch_size), overwrite=True)
+    model.save('{}epochs_{}batch_cnn_model_{}.h5'.format(
+        epochs, batch_size, data_directory.replace("/", "_")), overwrite=True)
     # del model  # deletes the existing model
     predicted = model.predict(X_test)
     y_pred = np.argmax(predicted, axis=1)

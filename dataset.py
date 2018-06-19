@@ -5,22 +5,22 @@ import numpy as np
 import scipy.misc
 
 
-def preprocess_input(x0):
-    x = x0 / 255.
-    x -= 0.5
-    x *= 2.
-    return x
+# def preprocess_input(x0):
+#     x = x0 / 255.
+#     x -= 0.5
+#     x *= 2.
+#     return x
 
 
-def reverse_preprocess_input(x0):
-    x = x0 / 2.0
-    x += 0.5
-    x *= 255.
-    return x
+# def reverse_preprocess_input(x0):
+#     x = x0 / 2.0
+#     x += 0.5
+#     x *= 255.
+#     return x
 
 
 def dataset(base_dir, n):
-    print("base_dir : {}, n : {}".format(base_dir, n))
+    # print("base_dir : {}, n : {}".format(base_dir, n))
     d = defaultdict(list)
     for root, subdirs, files in os.walk(base_dir):
         for filename in files:
@@ -32,7 +32,7 @@ def dataset(base_dir, n):
             d[label].append(file_path)
 
     tags = sorted(d.keys())
-    print("classes : {}".format(tags))
+    # print("classes : {}".format(tags))
     processed_image_count = 0
     useful_image_count = 0
 
@@ -46,7 +46,7 @@ def dataset(base_dir, n):
             img = scipy.misc.imread(filename)
             height, width, chan = img.shape
             assert chan == 3
-            aspect_ratio = float(max((height, width))) / min((height, width))
+            # aspect_ratio = float(max((height, width))) / min((height, width))
             # if aspect_ratio > 2:
             #     continue
             # # We pick the largest center square.
@@ -58,7 +58,7 @@ def dataset(base_dir, n):
             X.append(img)
             y.append(class_index)
             useful_image_count += 1
-    print("processed {}, used {}".format(processed_image_count,useful_image_count))
+    # print("processed {}, used {}".format(processed_image_count,useful_image_count))
 
     X = np.array(X).astype(np.float32)
     # X = X.transpose((0, 3, 1, 2))
@@ -69,12 +69,12 @@ def dataset(base_dir, n):
     # X = X[perm]
     # y = y[perm]
 
-    print ("classes:")
-    for class_index, class_name in enumerate(tags):
-        print (class_name, sum(y==class_index))
+    # print ("classes:")
+    # for class_index, class_name in enumerate(tags):
+    #     print (class_name, sum(y==class_index))
 
     return X, y, tags
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
