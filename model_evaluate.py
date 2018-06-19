@@ -4,13 +4,9 @@ import os
 import sys
 
 import keras
-from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.models import Model
 from keras.optimizers import Adam
 from keras.preprocessing import image
-from keras.applications.resnet50 import conv_block, identity_block
-from keras.layers import (Activation, BatchNormalization, Convolution2D, Dense,
-                          Flatten, Input, MaxPooling2D, ZeroPadding2D, AveragePooling2D)
 from keras import backend as K
 import numpy as np
 from keras import applications
@@ -55,25 +51,20 @@ def main():
                         help='a result file', type=str, default="output.txt")
     args = parser.parse_args()
     # dimensions of our images.
-    img_width, img_height = args.dimension, args.dimension
-    channel = args.channel
-    SHAPE = (img_width, img_height, channel)
-    bn_axis = 3 if K.image_dim_ordering() == 'tf' else 1
-
     data_directory = args.input
-    period_name = data_directory.split('/')
 
     # print ("loading dataset")
     # X_train, Y_train, nb_classes= build_dataset("{}/training".format(data_directory), args.dimension)
     X_test, Y_test, nb_classes = build_dataset(
         "{}".format(data_directory), args.dimension)
-    print("number of classes : {}".format(nb_classes))
 
     # load pre-trained model
     model = load_model(args.model_name)
 
     predicted = model.predict(X_test)
+    print(predicted)
     y_pred = np.argmax(predicted, axis=1)
+    print(y_pred)
     Y_test = np.argmax(Y_test, axis=1)
     cm = confusion_matrix(Y_test, y_pred)
     report = classification_report(Y_test, y_pred)
