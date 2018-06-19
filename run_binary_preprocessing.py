@@ -9,8 +9,9 @@ formatters = {
 }
 
 symbol = sys.argv[1]
-start_date = "2017-01-01"
-end_date = "2016-12-31"
+testing_start_date = "2017-01-01"
+testing_end_date = "2018-06-14"
+training_end_date = "2016-12-31"
 training_start_date = "2000-01-01"
 windows_length = sys.argv[2]
 dimension = sys.argv[3]
@@ -24,13 +25,13 @@ try:
             # get data testing
             print('{RED}\nGet Testing Data{END}'.format(**formatters))
             subprocess.call(
-                'python get_data.py -sd {} -t {} -s yahoo -p testing'.format(start_date, symbol), shell=True)
+                'python get_data.py -sd {} -ed {} -t {} -s yahoo -p testing'.format(testing_start_date, testing_end_date, symbol), shell=True)
             print('{GREEN}Get Testing Data Done\n{END}'.format(**formatters))
         if onlytraining:
             # get data testing
             print('{RED}\nGet Training Data{END}'.format(**formatters))
             subprocess.call(
-                'python get_data.py -sd {} -ed {} -t {} -s yahoo -p training'.format(training_start_date, end_date, symbol), shell=True)
+                'python get_data.py -sd {} -ed {} -t {} -s yahoo -p training'.format(training_start_date, training_end_date, symbol), shell=True)
             print('{GREEN}Get Training Data Done\n{END}'.format(**formatters))
 except Exception as identifier:
     print(identifier)
@@ -88,6 +89,7 @@ except Exception as identifier:
 
 # print('{RED}Last step please resize images with your own.{END}'.format(**formatters))
 # find . -maxdepth 4 -iname "*.png" | xargs -L1 -I{} convert -flatten +matte -adaptive-resize 200x200! "{}" "{}"
+# find . -iname "*.png" | xargs -L1 -I{} convert -flatten +matte -adaptive-resize 200x200! "{}" "{}"
 
 # find . -name "*.png" -exec convert "{}" -alpha off "{}" \;
 # os.system('spd-say --voice-type female3 "your program has finished"')
