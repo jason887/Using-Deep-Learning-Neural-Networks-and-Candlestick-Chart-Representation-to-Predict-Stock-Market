@@ -15,7 +15,7 @@ training_end_date = "2016-12-31"
 training_start_date = "2000-01-01"
 windows_length = sys.argv[2]
 dimension = sys.argv[3]
-download_data = True
+download_data = False
 onlytesting = True
 onlytraining = True
 
