@@ -8,7 +8,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 import argparse
 import math
-import dataset
+import dataset_traditional as dataset
 
 
 def build_dataset(data_directory, img_width):
@@ -52,7 +52,9 @@ def main():
     X_test, Y_test, nb_classes = build_dataset(
         "{}/test".format(data_directory), args.dimension)
     print("number of classes : {}".format(nb_classes))
-
+    # new_shape = (X_train.shape[0] * X_train.shape[1], X_train[2] - 1)
+    # X_trains = X_train[:, :, :3].reshape(new_shape)
+    # print("shape {}".format(X_trains.shape))
     trained_model = random_forest_classifier(X_train, Y_train)
 
     # Save Model or creates a HDF5 file
