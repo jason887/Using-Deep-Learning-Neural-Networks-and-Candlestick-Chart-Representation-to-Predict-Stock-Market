@@ -21,7 +21,7 @@ def build_dataset(data_directory, img_width):
 
 
 def knn_classifier(features, target):
-    clf = neighbors.KNeighborsClassifier()
+    clf = neighbors.KNeighborsClassifier(algorithm='kd_tree')
     clf.fit(features, target)
     return clf
 
