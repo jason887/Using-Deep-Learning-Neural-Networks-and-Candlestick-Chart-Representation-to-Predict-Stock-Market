@@ -52,8 +52,8 @@ def main():
     trained_model = knn_classifier(X_train, Y_train)
 
     # Save Model or creates a HDF5 file
-    joblib.dump(trained_model, 'knn_model_{}.pkl'.format(
-        data_directory.replace("/", "_")))
+    # joblib.dump(trained_model, 'knn_model_{}.pkl'.format(
+        # data_directory.replace("/", "_")))
 
     predicted = trained_model.predict(X_test)
     y_pred = np.argmax(predicted, axis=1)
