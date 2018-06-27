@@ -114,7 +114,7 @@ def build_model(SHAPE, nb_classes, bn_axis, seed=None):
                activation='relu',
                padding='same',
                name='block5_conv3')(x)
-    x = MaxPooling2D((2, 2), strides=(2, 2), name='block5_pool')(x)
+    # x = MaxPooling2D((2, 2), strides=(2, 2), name='block5_pool')(x)
 
     x = Flatten(name='flatten')(x)
     x = Dense(4096, activation='relu', name='fc1')(x)
