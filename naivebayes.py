@@ -49,7 +49,7 @@ def main():
     # new_shape = (X_train.shape[0] * X_train.shape[1], X_train[2] - 1)
     # X_trains = X_train[:, :, :3].reshape(new_shape)
     # print("shape {}".format(X_trains.shape))
-    trained_model = knn_classifier(X_train, Y_train)
+    trained_model = naivebayes_classifier(X_train, Y_train)
 
     # Save Model or creates a HDF5 file
     # joblib.dump(trained_model, 'knn_model_{}.pkl'.format(
