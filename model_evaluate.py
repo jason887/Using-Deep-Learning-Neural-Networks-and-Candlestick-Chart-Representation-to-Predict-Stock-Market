@@ -16,6 +16,7 @@ import dataset
 import argparse
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
+from sklearn import model_selection
 
 import time
 from datetime import timedelta
@@ -92,6 +93,9 @@ def main():
         * (float(tn)+float(fp))
         * (float(tn)+float(fn))
     ), 3)
+    kfold = model_selection.KFold(n_splits=10, random_state=7)
+    aucresults = model_selection.cross_val_score(
+        model, X_test, Y_test, cv=kfold, scoring='roc_auc')
 
     f_output = open(args.output, 'a')
     f_output.write('=======\n')
@@ -106,6 +110,8 @@ def main():
     f_output.write('specitivity: {}\n'.format(specitivity))
     f_output.write("sensitivity : {}\n".format(sensitivity))
     f_output.write("mcc : {}\n".format(mcc))
+    f_output.write("AUC : {} ({})\n".format(
+        aucresults.mean(), aucresults.std()))
     f_output.write("{}".format(report))
     f_output.write('=======\n')
     f_output.close()
