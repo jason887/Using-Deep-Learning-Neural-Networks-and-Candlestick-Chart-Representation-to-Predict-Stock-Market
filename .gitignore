@@ -111,3 +111,4 @@ dataset/
 dataset_binary/
 *.png
 *.tar.gz
+~$*
