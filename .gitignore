@@ -112,3 +112,5 @@ dataset_binary/
 *.png
 *.tar.gz
 ~$*
+
+!report/latex/figures/*
