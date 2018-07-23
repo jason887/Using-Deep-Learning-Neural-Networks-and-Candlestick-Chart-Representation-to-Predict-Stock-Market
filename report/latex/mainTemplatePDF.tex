@@ -1,13 +1,16 @@
 \documentclass[10pt,twocolumn]{article} 
 \usepackage{simpleConference}
 \usepackage{times}
-\usepackage{graphicx}
+\usepackage{array,multirow,graphicx}
+\usepackage{float}
 \usepackage{dcolumn,tabularx,booktabs,tabulary}
 \usepackage{multirow}
 \usepackage{amssymb}
 \usepackage{url,hyperref}
 \usepackage{authblk}
 \usepackage{amsmath}
+\usepackage[width=.40\textwidth]{caption}
+
 \begin{document}
 
 \title{Using Deep Learning Neural Networks and Candlestick Chart Representation to Predict Stock Market}
@@ -24,6 +27,7 @@
 \renewcommand\Authands{ and }
 
 \maketitle
+
 \thispagestyle{empty}
 
 \begin{abstract}
@@ -71,17 +75,18 @@ We trained and evaluated our model on two different stock markets, i.e. Taiwan a
 \par
 In this data collection, we use the application program interface $($API$)$ service from Yahoo! Finance to get historical time series data for each stock market shown in Figure \ref{fig:juvemarket}. From the period that we have been set in the following Table \ref{Tab:datasettime}, we certainly get some periods of trading day, starting from Monday until Friday is the period of trading day.
 
-\begin{table}
-    \caption{The period time of our dataset, separated between the training, testing and independent data.}
-    \begin{tabularx}{\columnwidth}{X|X|X|X|X}
-        \hline
-        Stock Data	& Training Data    & Testing Data & Independent Data\\
-        \hline
-        TW50 & 2000/01/01 until 2016/12/31 & 2017/01/01 until 2018/06/14 & 2017/01/01 until 2018/06/14  \\
-        ID10 & 2000/01/01 until 2016/12/31 & 2017/01/01 until 2018/06/14 & 2017/01/01 until 2018/06/14  \\
-        \hline
-    \end{tabularx}
-    \label{Tab:datasettime}
+\begin{table}[]
+\caption{The period time of our dataset, separated between the training, testing and independent data.}
+\label{Tab:datasettime}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{|l|c|c|c|c|c|c|}
+\hline
+\multicolumn{1}{|c|}{\multirow{2}{*}{Stock Data}} & \multicolumn{2}{c|}{Training Data} & \multicolumn{2}{c|}{Testing Data} & \multicolumn{2}{c|}{Independent Data} \\ \cline{2-7} 
+\multicolumn{1}{|c|}{}                            & Start            & End             & Start           & End             & Start             & End               \\ \hline
+TW50                                              & 2000/01/01       & 2016/12/31      & 2017/01/01      & 2018/06/14      & 2017/01/01        & 2018/06/14        \\ \cline{2-7} 
+ID10                                              & 2000/01/01       & 2016/12/31      & 2017/01/01      & 2018/06/14      & 2017/01/01        & 2018/06/14        \\ \hline
+\end{tabular}
+}
 \end{table}
 
 \begin{figure}
@@ -94,28 +99,6 @@ Segregation of data based on predetermined time for data training and data testi
 
 \subsection{Data Preprocessing}
 We are processing our time series data using library Matplotlib \cite{hunter2007matplotlib} in python programming to convert from the historical data that we have prepared into a candlestick chart. We divide the period used to create candlestick chart based on 5 trading days’ data, 10 trading days’ data and 20 trading days’ data. 
-The amount of data is shown in Table 6 can be different number because we will only generate a candlestick chart that is qualified based on the period set in the following Table \ref{Tab:datasettime}.
-
-\begin{table}[htbp]
-  \centering
-  \caption{Add caption}
-    \begin{tabular}{cD{,}{,}{3.7}D{,}{,}{5.1}}
-    \toprule
-    \textbf{Stock Data} & \multicolumn{2}{c}{\textbf{5 Period}} \\ \multicolumn{2}{c}{\textbf{10 Period}}\\
-    \cmidrule{2-3}
-     & \multicolumn{2}{c}{Carga Mineral (\%)} \\
-     & \multicolumn{1}{c}{20}    &  \multicolumn{1}{c}{30} \\
-     \midrule
-    Fibra & 1,266 & 252 \\
-    GCC & 0,316 & 52 \\
-    Amido & 0,016 & 25 \\
-    ASA & 0,002 & 252 \\
-    Percol & 0,00032 & 25 \\
-    \bottomrule
-    \end{tabular}
-  \label{tab_formacao_folhas2}%
-\end{table}
-
 \par
 Besides the period time, we also divided our candlestick chart with and without volume indicator. The general candlestick chart usually only consists of time series data such as open price, close price, low price and high price shown in Figure \ref{fig:generalcandlestickchart}. Adding a volume indicator into candlestick chart is one of our approaches to find out correlation between enrich candlestick chart information and prediction result.
 \begin{figure}
@@ -124,14 +107,17 @@ Besides the period time, we also divided our candlestick chart with and without 
   \label{fig:generalcandlestickchart}
 \end{figure}
 \section{Methodology}
-The architecture of our proposed stock market prediction is shown in Figure \ref{fig:methodologydesign}. The first, we collect the data from stock market historical data using Yahoo! Finance API. After that, we apply the sliding window technique to generate the period data before using computer graphic technique to generate the candlestick chart images. Finally, our candlestick charts are feed as input into some deep learning neural networks model for stock market prediction, and the outputs will be binary class to indicate the price will going up or down in the near future.
-\begin{figure}
-  \includegraphics[width=\linewidth]{figures/methodology.png}
+\begin{figure*}
+\label{fig:methodologydesign}
+  \includegraphics[width=\textwidth]{figures/methodology.png}
   \caption{Our methodology design.}
-  \label{fig:methodologydesign}
-\end{figure}
+\end{figure*}
+The architecture of our proposed stock market prediction is shown in Figure \ref{fig:methodologydesign}. The first, we collect the data from stock market historical data using Yahoo! Finance API. After that, we apply the sliding window technique to generate the period data before using computer graphic technique to generate the candlestick chart images. Finally, our candlestick charts are feed as input into some deep learning neural networks model for stock market prediction, and the outputs will be binary class to indicate the price will going up or down in the near future.
+
+
 \subsection{Chart Encoding}
 Candlesticks show that emotion by visually representing the size of price moves with different colors. Traders use the candlestick chart to make trading decision based on regularly occurring patterns that help forecast the short-term direction of the price. Just like a bar chart, a candlestick chart shows the stock market’s open price, high, low, and close price during those period time. The candlestick chart has a wide part, which is called body, the body represents the price range between the open and close of that day’s trading. When the body is filled in red, it means the close was lower than the open price. If the body is filled in green, it means the close was higher than the open price. 
+\par
 We use computer graphics techniques implemented in python library called Matplotlib\cite{hunter2007matplotlib} to convert this time series data into a candlestick image size as 50x50 and 20x20 dimension with RGB$($Red Green Blue$)$ channel.
 Figure \ref{fig:candlewithoutvolume} and Figure \ref{fig:candlewithvolume} describe our candlestick chart representation in different period time and size with volume and without volume respectively.
 \begin{figure}
@@ -150,6 +136,7 @@ We utilized the black color as our candlestick chart background. For each candle
 There is a lot of excitement surrounding the fields of Neural Networks (NN) and Deep learning (DL), due to numerous well-publicized successes that these systems have achieved in the last few years. We will use some Deep Learning Networks (DLN) based on Convolutional Neural Network to perform our classification on stock market prediction. Besides the DLN, we also apply some traditional Machine Learning (ML) algorithms to compare with DLN. Those traditional Machine Learning algorithms are Random Forest and K-Nearest Neighbors algorithms.
 \subsubsection{Convolutional Neural Network}
 Convolutional Neural Networks (CNNs) are very similar to ordinary Neural Networks (NN). They are made up of neurons with learnable weights and biases. Each neuron receives some inputs, performs a dot product and optionally follows it with a non-linearity. The whole network still expresses a single differentiable score function: from the raw image pixels on one end to class scores at the other. Moreover, they still have a loss function (e.g. SVM/Softmax) on the last (fully connected) layer and all the tips/tricks we developed for learning regular Neural Networks still apply.
+\par
 As shown in Figure \ref{fig:simpleneuralnetwork}, Neural Networks receive an input (a single vector), and transform it through a series of hidden layers. Each hidden layer is made up of a set of neurons, where each neuron is fully connected to all neurons in the previous layer, and where neurons in a single layer function completely independently and do not share any connections. The last fully connected layer is called the “output layer” and in classification settings, it represents the class scores.
 \begin{figure}
   \includegraphics[width=\linewidth]{figures/simpleneuralnetwork.png}
@@ -159,37 +146,174 @@ As shown in Figure \ref{fig:simpleneuralnetwork}, Neural Networks receive an inp
 \par 
 Our CNN model architecture consist of 4 layers of convolutional 2d, 4 layers of max pooling 2d, and 3 dropouts. The detail of CNN model architecture is shown in Table 7. The Conv layer is the core building block of a Convolutional Network that does most of the computational heavy lifting. The pool layers are in charge of down sampling the spatial dimensions of the input. The most common setting is to use max pooling with 2x2 receptive fields (i.e. F=2), and with a stride of two (i.e. S=2). Note that this discards exactly 75 \% of the activations in an input volume (due to down sampling by 2 in both width and height). Another slightly less common setting is to use 3x3 receptive fields with a stride of two, but this makes. It is very uncommon to see receptive field sizes for max pooling that are larger than three because the pooling is then too lossy and aggressive. This usually leads to worse performance.
 \subsubsection{Residual Network}
-Developed by He, Zhang et al. was the winner of ILSVRC 2015[15]. It features special skip connections and a heavy use of batch normalization. The architecture is also missing fully connected layers at the end of the network. ResNets are currently by far state of the art Convolutional Neural Network models
+Developed by He, Zhang et al. was the winner of ILSVRC 2015\cite{he2016deep}. It features special skip connections and a heavy use of batch normalization. The architecture is also missing fully connected layers at the end of the network. ResNets are currently by far state of the art Convolutional Neural Network models
 \par
 As we have seen so far, increasing the depth should increase the accuracy of the network, as long as overfitting is taken care of. Nevertheless, the problem with increased depth is that the signal required to change the weights, which arises from the end of the network by comparing ground-truth and prediction becomes very small at the earlier layers, because of increased depth. It essentially means that earlier layers are almost negligible learned. This is called vanishing gradient.
 \par 
 The second problem with training the deeper networks is performing the optimization on huge parameter space and therefore naively adding the layers leading to higher training error. Residual networks allow training of such deep networks by constructing the network through modules called residual models.
 \subsubsection{VGG Network}
-The VGG network architecture was introduced by Simonyan and Zisserman[19]. It is named VGG because this architecture is from VGG group, Oxford. This network is characterized by its simplicity, using only 3x3 convolutional layers stacked on top of each other in increasing depth. Reducing volume size is handled by max pooling. Two fully connected layers, each with 4096 nodes are then followed by a softmax classifier shown in Table 9. The “16” and “19” stand for the number of weight layers in the network. Unfortunately, there are two major drawbacks with VGGNet. First, it is painfully slow to train and the second the network architecture weights themselves are quite large.
+The VGG network architecture was introduced by Simonyan and Zisserman\cite{simonyan2014very}. It is named VGG because this architecture is from VGG group, Oxford. This network is characterized by its simplicity, using only 3x3 convolutional layers stacked on top of each other in increasing depth. Reducing volume size is handled by max pooling. Two fully connected layers, each with 4096 nodes are then followed by a softmax classifier shown in Table 9. The “16” and “19” stand for the number of weight layers in the network. Unfortunately, there are two major drawbacks with VGGNet. First, it is painfully slow to train and the second the network architecture weights themselves are quite large.
 \subsubsection{Random Forest}
 Random Forest classifier is a classifier with Consist of many decision trees and adopted the technique of random decision forest prioritizes predictive performance by using multiple learning algorithms (ensemble learning). In general, Decision trees are a learning methods used in data search technique. The method used by the idea of combining the "bagging" idea or called "Bootstrap Aggregating" (reduce variance) and the random selection of features in the training sets (classification and regression tree). 
-Next we will bring more detail how we can use the various options in Random Forest usefully. Most of the options depend on two data objects generated by random forests. When the training set for the current tree is drawn by sampling with replacement, about one-third of the cases are left out of the sample. This OOB (out-of-bag) data is used to get a running unbiased estimate of the classification error as trees are added to the forest. It is also used to get estimates of variable importance. After each tree is built, all of the data are run down the tree, and proximities are computed for each pair of cases. If two cases occupy the same terminal node, their proximity is increased by one. At the end of the run, the proximities are normalized by dividing by the number of trees. Proximities are used in replacing missing data, locating outliers, and producing illuminating low-dimensional views of the data. 
-The difference between Random Forest algorithm and the decision tree algorithm is that in Random Forest, the processes of finding the root node and splitting the feature nodes will run randomly. We applied our random forest algorithm from a machine learning python library called skicit-learn[20].
+\par
+Next we will bring more detail how we can use the various options in Random Forest usefully. Most of the options depend on two data objects generated by random forests. When the training set for the current tree is drawn by sampling with replacement, about one-third of the cases are left out of the sample. This OOB (out-of-bag) data is used to get a running unbiased estimate of the classification error as trees are added to the forest. It is also used to get estimates of variable importance. After each tree is built, all of the data are run down the tree, and proximities are computed for each pair of cases. If two cases occupy the same terminal node, their proximity is increased by one. At the end of the run, the proximities are normalized by dividing by the number of trees. Proximities are used in replacing missing data, locating outliers, and producing illuminating low-dimensional views of the data.
+\par 
+The difference between Random Forest algorithm and the decision tree algorithm is that in Random Forest, the processes of finding the root node and splitting the feature nodes will run randomly. We applied our random forest algorithm from a machine learning python library called skicit-learn\cite{pedregosa2011scikit}.
 \subsubsection{K-Nearest Neighbors}
 K-Nearest Neighbors (KNN) is a classifier with based on the Lazy learning and Instance-based (IBk) learning algorithms (selection K based value based on model evaluation method or cross validation). Further, Lazy learning is a learning method with the purposed to store training data and enables the training data is used when there is a query request is made (waits until it is given a test) by the system. Similarity measure applied to the KNN with the aim to compare every new case with available cases (training data) that has been previously saved. Conversely different with eager learning, eager learning is a learning method with the intention of preparing training process data earlier, then wait for the query request (a test). KNN implemented lazy learning method which has the distinct advantage that it can solve the problem by comparing the problem with similar past problem (case-based reasoning). KNN adopted a supervised learning approach by utilizing the data in this case must have class/label and this learning model of the algorithm can be used for classification and regression predictive problems.
+\par
 We also using skicit-learn python library for our KNN classifier. Furthermore, we used a K-D Tree algorithm in our KNN to perform prediction with default parameter from scikit-learn library.
 \subsection{Performance Evaluation}
 There are some statistics measures of the performance evaluation to evaluate the result of all the classifiers by measuring the sensitivity (true positive rate or recall), specificity (true negative rate), accuracy and Matthew's correlation coefficient (MCC). In general, TP is true positive or correctly identified, FP is false positive or incorrectly identified, TN is true negative or correctly rejected and FN is false negative or incorrectly rejected. Formulated as follows:
 
+\begin{equation}
+Sensitivity=\frac{TP}{TP+FN}
+\end{equation}
+
+\begin{equation}
+Specitivity=\frac{TN}{TN+FP}
+\end{equation}
+
+\begin{equation}
+Accuracy=\frac{TP+TN}{TP+FP+TN+FN}
+\end{equation}
+
+\begin{equation}
+MCC=\frac{TP\times TN-FP \times FN}{\sqrt{(TP+FP)(TP+FN)(TN+FP)(TN+FN)}}
+\end{equation}
+
 \section{Experimental Results and Discussion}
 \subsection{Classifiaction for Each Stock Market}
 In this study, we try to make stock market predictions by using binary classification. Where the value 1 on the label means price increasing on the next day, while the value 0 is the reverse of it.
-We trained and evaluated our binary classification model on two challenging datasets, i.e. Taiwan 50 and Indonesia 10 stock market. Taiwan 50 dataset includes 50 company stock markets from Taiwan and Indonesia 10 dataset includes 10 company stock markets from Indonesia which most of them are the top stock market in both countries. We also divide the retrieval period based on the duration of the 5 days, 10 days and 20 days of trading days to create a sequence of sliding windows that will be converted to candlestick chart. Another hands, we also generate the candlestick chart with and without volume indicator for 2 different image sizes, 50 and 20 dimension. 
+\par
+We trained and evaluated our binary classification model on two challenging datasets, i.e. Taiwan 50 and Indonesia 10 stock market. Taiwan 50 dataset includes 50 company stock markets from Taiwan and Indonesia 10 dataset includes 10 company stock markets from Indonesia which most of them are the top stock market in both countries. We also divide the retrieval period based on the duration of the 5 days, 10 days and 20 days of trading days to create a sequence of sliding windows that will be converted to candlestick chart. Another hands, we also generate the candlestick chart with and without volume indicator for 2 different image sizes, 50 and 20 dimension.
+
 \subsubsection{Classification for Taiwan 50 Dataset}
-From all experiments about Taiwan 50, we conclude a summary result with and without volume indicator for different trading days’ period and image dimension result. Table 22 shows that CNN in 20 trading days’ period with 50-dimension image and volume indicator is better than the others with 91.5\% accuracy. In addition, without volume indicator for Taiwan 50, CNN in 20 trading days’ period with 50 dimension performs better than the others with 92.2\% accuracy. From the result of both of those experiments, it indicates that the method using CNN model with longer trading day’s period without volume indicator can achieve the best result for Taiwan 50 dataset.
+From all experiments about Taiwan 50, we conclude a summary result with and without volume indicator for different trading days’ period and image dimension result. Table \ref{Tab:summarytw50} shows that CNN in 20 trading days’ period with 50-dimension image and volume indicator is better than the others with 91.5\% accuracy. In addition, without volume indicator for Taiwan 50, CNN in 20 trading days’ period with 50 dimension performs better than the others with 92.2\% accuracy. From the result of both of those experiments, it indicates that the method using CNN model with longer trading day’s period without volume indicator can achieve the best result for Taiwan 50 dataset.
+ \begin{table}[H]
+ \centering
+ \caption{Summary result of Taiwan 50 with their best classifier for each trading days and image dimension.}
+ \label{Tab:summarytw50}
+ \resizebox{\columnwidth}{!}{%
+ \begin{tabular}{|c|l|c|c|c|c|c|c|c|}
+ \hline
+ & \multicolumn{1}{c|}{Classifier} & \multicolumn{1}{c|}{Period} & \multicolumn{1}{c|}{Dimension} & \multicolumn{1}{c|}{Sensitivity} & \multicolumn{1}{c|}{Specitivity} & \multicolumn{1}{c|}{Accuracy} & \multicolumn{1}{c|}{MCC}\\
+ \hline
+ \parbox[t]{2mm}{\multirow{5}{*}{\rotatebox[origin=c]{90}{with volume}}} 
+ & CNN & 5 & 50 & 83.2 & 83.8 & 83.5 & 0.67 \\
+ & CNN & 10 & 50 & 88.6 & 87.3 & 88.0 & 0.758 \\
+ & CNN & 20 & 50 & \textbf{91.6} & \textbf{91.3} & \textbf{91.5} & \textbf{0.827} \\
+ & CNN & 5 & 20 & 83.9 & 82.7 & 83.3 & 0.666 \\
+ & Random Forest & 10 & 20 & 87.0 & 88.3 & 87.6 & 0.751 \\
+ & CNN & 20 & 20 & 90.8 & 90.2 & 90.6 & 0.808 \\
+ \hline
+  \parbox[t]{2mm}{\multirow{5}{*}{\rotatebox[origin=c]{90}{without volume}}} 
+ & CNN & 5 & 50 & 83.6 & 85.1 & 84.4 & 0.687 \\
+ & CNN & 10 & 50 & 89.2 & 88.1 & 88.7 & 0.773 \\
+ & CNN & 20 & 50 & \textbf{93.3} & 90.7 & \textbf{92.2} & \textbf{0.84} \\
+ & CNN & 5 & 20 & 84.8 & 83.0 & 83.9 & 0.678 \\
+ & CNN & 10 & 20 & 88.0 & 88.2 & 88.1 & 0.761 \\
+ & CNN & 20 & 20 & 81.7 & 91.4 & 91.0 & 0.817 \\
+ \hline
+ \end{tabular}
+ }
+ \end{table}
 \subsubsection{Classification for Indonesia 10 Dataset}
-From all experiment results with Indonesia 10 dataset, we conclude a summary result with and without volume indicator in Tables 36 and 37 respectively. It shows that the CNN method with 20 trading days’ period in 50 dimension using volume indicator show the best result with 90.0\% accuracy in Table 37. While the CNN method in 20 trading days’ period with 20-dimension image without using the volume indicator performs better result with 92.1\% accuracy. It indicates that the method using CNN model with longer trading day’s period without volume indicator can achieve the best result for Indonesia 10 dataset.
+From all experiment results with Indonesia 10 dataset, we conclude a summary result with and without volume indicator in Tables \ref{Tab:summaryid10} respectively. It shows that the CNN method with 20 trading days’ period in 50 dimension using volume indicator show the best result with 90.0\% accuracy. While the CNN method in 20 trading days’ period with 20-dimension image without using the volume indicator performs better result with 92.1\% accuracy. It indicates that the method using CNN model with longer trading day’s period without volume indicator can achieve the best result for Indonesia 10 dataset.
+ \begin{table}[H]
+ \centering
+ \caption{Summary result of Indonesia 10 with their best classifier for each trading days and image dimension.}
+ \label{Tab:summaryid10}
+ \resizebox{\columnwidth}{!}{%
+ \begin{tabular}{|c|l|c|c|c|c|c|c|c|}
+ \hline
+ & \multicolumn{1}{c|}{Classifier} & \multicolumn{1}{c|}{Period} & \multicolumn{1}{c|}{Dimension} & \multicolumn{1}{c|}{Sensitivity} & \multicolumn{1}{c|}{Specitivity} & \multicolumn{1}{c|}{Accuracy} & \multicolumn{1}{c|}{MCC}\\
+ \hline
+ \parbox[t]{2mm}{\multirow{5}{*}{\rotatebox[origin=c]{90}{with volume}}} 
+ & ResNet50 & 5 & 50 & 80.7 & 85.4 & 83.1 & 0.661 \\
+ & ResNet50 & 10 & 50 & 88.6 & 88.4 & 88.5 & 0.77 \\
+ & CNN & 20 & 50 & \textbf{90.0} & \textbf{90.1} & \textbf{90.0} & \textbf{0.798} \\
+ & ResNet50 & 5 & 20 & 78.8 & 82.3 & 80.6 & 0.612 \\
+ & CNN & 10 & 20 & 83.3 & 85.4 & 84.3 & 0.686 \\
+ & CNN & 20 & 20 & 89.1 & 84.6 & 87.1 & 0.738 \\
+ \hline
+  \parbox[t]{2mm}{\multirow{5}{*}{\rotatebox[origin=c]{90}{without volume}}} 
+ & ResNet50 & 5 & 50 & 79.1 & 87.9 & 83.3 & 0.671 \\
+ & CNN & 10 & 50 & 87.5 & 86.6& 87.1 & 0.74 \\
+ & CNN & 20 & 50 & \textbf{92.1} & 92.1 & \textbf{92.1} & \textbf{0.837} \\
+ & CNN & 5 & 20 & 83.4 & 82.4 & 82.9 & 0.658 \\
+ & CNN & 10 & 20 & 85.4 & 85.6 & 85.5 & 0.708 \\
+ & VGG16 & 20 & 20 & 91.5 & 89.7 & 90.7 & 0.808 \\
+ \hline
+ \end{tabular}
+ }
+ \end{table}
 \subsection{Independent Testing Result}
 Measuring our model result not only used performance evaluation. We also performed an independent test to see that our proposed method is reasonable. During this independent test, we used two index stock exchange data from each country. Yuanta/P-shares Taiwan Top 50 ETF represented independent data test for our Taiwan50, whereas Jakarta Composite Index is our independent data set test for Indonesia10. Both of the stock exchange data are taken from 1st January, 2017 until 14th June 2018. 
-Tables 38 and 39 show our independent test result for Taiwan50 using volume indicator and without using volume indicator respectively. The independent test result for Indonesia10 using and without using volume indicator are shown in Tables 40 and 41 respectively. As shown in Tables 38, 39, 40 and 41, our CNN with 20 trading days’ period and 50-dimension image get best result for both independent test. It indicated again that our proposed method outperforms the others.
+Tables \ref{Tab:indptw50} show our independent test result for Taiwan50 using volume indicator and without using volume indicator respectively. The independent test result for Indonesia10 using and without using volume indicator are shown in Tables \ref{Tab:indpid10} respectively. As shown in Tables \ref{Tab:summarytw50} and \ref{Tab:summaryid10}, our CNN with 20 trading days’ period and 50-dimension image get best result for both independent test. It indicated again that our proposed method outperforms the others.
+ \begin{table}[H]
+ \centering
+ \caption{Summary result of Taiwan 50 with their best classifier for each trading days and image dimension.}
+ \label{Tab:indptw50}
+ \resizebox{\columnwidth}{!}{%
+ \begin{tabular}{|c|l|c|c|c|c|c|c|c|}
+ \hline
+ & \multicolumn{1}{c|}{Classifier} & \multicolumn{1}{c|}{Period} & \multicolumn{1}{c|}{Dimension} & \multicolumn{1}{c|}{Sensitivity} & \multicolumn{1}{c|}{Specitivity} & \multicolumn{1}{c|}{Accuracy} & \multicolumn{1}{c|}{MCC}\\
+ \hline
+ \parbox[t]{2mm}{\multirow{5}{*}{\rotatebox[origin=c]{90}{with volume}}} 
+ & CNN & 5 & 50 & 83.2 & 83.8 & 83.5 & 0.67 \\
+ & CNN & 10 & 50 & 88.6 & 87.3 & 88.0 & 0.758 \\
+ & CNN & 20 & 50 & \textbf{91.6} & \textbf{91.3} & \textbf{91.5} & \textbf{0.827} \\
+ & CNN & 5 & 20 & 83.9 & 82.7 & 83.3 & 0.666 \\
+ & Random Forest & 10 & 20 & 87.0 & 88.3 & 87.6 & 0.751 \\
+ & CNN & 20 & 20 & 90.8 & 90.2 & 90.6 & 0.808 \\
+ \hline
+  \parbox[t]{2mm}{\multirow{5}{*}{\rotatebox[origin=c]{90}{without volume}}} 
+ & CNN & 5 & 50 & 83.6 & 85.1 & 84.4 & 0.687 \\
+ & CNN & 10 & 50 & 89.2 & 88.1 & 88.7 & 0.773 \\
+ & CNN & 20 & 50 & \textbf{93.3} & 90.7 & \textbf{92.2} & \textbf{0.84} \\
+ & CNN & 5 & 20 & 84.8 & 83.0 & 83.9 & 0.678 \\
+ & CNN & 10 & 20 & 88.0 & 88.2 & 88.1 & 0.761 \\
+ & CNN & 20 & 20 & 81.7 & 91.4 & 91.0 & 0.817 \\
+ \hline
+ \end{tabular}
+ }
+ \end{table}
+ 
+  \begin{table}[H]
+ \centering
+ \caption{Summary result of Taiwan 50 with their best classifier for each trading days and image dimension.}
+ \label{Tab:indpid10}
+ \resizebox{\columnwidth}{!}{%
+ \begin{tabular}{|c|l|c|c|c|c|c|c|c|}
+ \hline
+ & \multicolumn{1}{c|}{Classifier} & \multicolumn{1}{c|}{Period} & \multicolumn{1}{c|}{Dimension} & \multicolumn{1}{c|}{Sensitivity} & \multicolumn{1}{c|}{Specitivity} & \multicolumn{1}{c|}{Accuracy} & \multicolumn{1}{c|}{MCC}\\
+ \hline
+ \parbox[t]{2mm}{\multirow{5}{*}{\rotatebox[origin=c]{90}{with volume}}} 
+ & CNN & 5 & 50 & 83.2 & 83.8 & 83.5 & 0.67 \\
+ & CNN & 10 & 50 & 88.6 & 87.3 & 88.0 & 0.758 \\
+ & CNN & 20 & 50 & \textbf{91.6} & \textbf{91.3} & \textbf{91.5} & \textbf{0.827} \\
+ & CNN & 5 & 20 & 83.9 & 82.7 & 83.3 & 0.666 \\
+ & Random Forest & 10 & 20 & 87.0 & 88.3 & 87.6 & 0.751 \\
+ & CNN & 20 & 20 & 90.8 & 90.2 & 90.6 & 0.808 \\
+ \hline
+  \parbox[t]{2mm}{\multirow{5}{*}{\rotatebox[origin=c]{90}{without volume}}} 
+ & CNN & 5 & 50 & 83.6 & 85.1 & 84.4 & 0.687 \\
+ & CNN & 10 & 50 & 89.2 & 88.1 & 88.7 & 0.773 \\
+ & CNN & 20 & 50 & \textbf{93.3} & 90.7 & \textbf{92.2} & \textbf{0.84} \\
+ & CNN & 5 & 20 & 84.8 & 83.0 & 83.9 & 0.678 \\
+ & CNN & 10 & 20 & 88.0 & 88.2 & 88.1 & 0.761 \\
+ & CNN & 20 & 20 & 81.7 & 91.4 & 91.0 & 0.817 \\
+ \hline
+ \end{tabular}
+ }
+ \end{table}
 \subsection{Comparison}
-To further evaluate the effectiveness of our predictive model, we also compare our result with the other related works. The first comparison is between our proposed method with [12], they used three different stock market datasets with different trading period time. Samsung, General Electric and Apple are their stock market data with one, two and three months of trading period respectively. We applied our proposed model in their datasets to compare our prediction performance with their result shown in [12]. The comparison result for Samsung, Apple, and GE stock market shown in Table 42, 43, and 44 respectively. Based on these comparison results, it revealed that our performance results outperformed the prediction results from [12].
-
+To further evaluate the effectiveness of our predictive model, we also compare our result with the other related works. The first comparison is between our proposed method with \cite{khaidem2016predicting}, they used three different stock market datasets with different trading period time. Samsung, General Electric and Apple are their stock market data with one, two and three months of trading period respectively. We applied our proposed model in their datasets to compare our prediction performance with their result shown in \cite{khaidem2016predicting}. The comparison result for Samsung, Apple, and GE stock market shown in Table 42, 43, and 44 respectively. Based on these comparison results, it revealed that our performance results outperformed the prediction results from \cite{khaidem2016predicting}.
+\par 
+Second comparison is between our proposed method with \cite{patel2015predicting}. They utilized four different stock market datasets from India stock exchange. In this comparison, we followed their dataset using Nifty50, S7P BSE Sensex, Reliance Industry and Infosys stock market datasets. Accuracy and F-measure were used for their performance evaluation. As comparison results shown in Table 45, Our proposed model yielded 97.2 \%, 93.9 \%, 93.4 \% and 93.9 \% for accuracy with S7P BSE Sensex, Reliance Industry, Nifty50 and Infosys stock market datasets respectively. It indicated that our proposed method is superior to Patel work \cite{patel2015predicting}.
+\par 
+Last comparison is between our proposed method with \cite{zhang2018improving}. Their dataset composition is similar with us. They are using thirteen Hong Kong stock market, whereas we used fifty Taiwan stock market datasets and ten Indonesia stock market datasets. Their methodology is combine sentiment analysis on social media and finance news. As shown in Table 46, Our proposed method achieved 92 \% significantly outperforms Zhang method \cite{zhang2018improving}.
 \section{Conclusions and Future Works}
 
 In this study, we present a new method for stock market prediction using 2 stock market datasets including 50 company stock markets for Taiwan50 datasets and 10 company stock market for Indonesian datasets. The first, we employ the sliding window technique to generate the period data. To find out correlation between enrich candlestick chart information and stock market prediction performance, we utilized the computer graphic technique to generate the candlestick chart images for stock market data. Finally, an CNN learning algorithm is employed to build our prediction for stock market.

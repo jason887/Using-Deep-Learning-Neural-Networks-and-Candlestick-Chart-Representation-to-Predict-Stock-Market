@@ -5,45 +5,45 @@ The style file: abbrv.bst
 Database file #1: refs.bib
 Warning--empty journal in borovykhdilated
 Warning--empty year in borovykhdilated
-You've used 10 entries,
+You've used 16 entries,
             2118 wiz_defined-function locations,
-            559 strings with 5648 characters,
-and the built_in function-call counts, 3513 in all, are:
-= -- 331
-> -- 223
-< -- 0
-+ -- 88
-- -- 78
-* -- 286
-:= -- 629
-add.period$ -- 29
-call.type$ -- 10
-change.case$ -- 68
+            595 strings with 6889 characters,
+and the built_in function-call counts, 5787 in all, are:
+= -- 549
+> -- 355
+< -- 1
++ -- 140
+- -- 124
+* -- 458
+:= -- 1010
+add.period$ -- 47
+call.type$ -- 16
+change.case$ -- 107
 chr.to.int$ -- 0
-cite$ -- 12
-duplicate$ -- 107
-empty$ -- 227
-format.name$ -- 78
-if$ -- 681
+cite$ -- 18
+duplicate$ -- 185
+empty$ -- 388
+format.name$ -- 124
+if$ -- 1145
 int.to.chr$ -- 0
-int.to.str$ -- 10
-missing$ -- 10
-newline$ -- 52
-num.names$ -- 20
-pop$ -- 58
+int.to.str$ -- 16
+missing$ -- 17
+newline$ -- 82
+num.names$ -- 32
+pop$ -- 99
 preamble$ -- 1
-purify$ -- 58
+purify$ -- 92
 quote$ -- 0
-skip$ -- 70
+skip$ -- 127
 stack$ -- 0
-substring$ -- 185
-swap$ -- 9
-text.length$ -- 0
+substring$ -- 322
+swap$ -- 25
+text.length$ -- 1
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 40
+type$ -- 62
 warning$ -- 2
-while$ -- 33
-width$ -- 12
-write$ -- 106
+while$ -- 54
+width$ -- 18
+write$ -- 170
 (There were 2 warnings)
