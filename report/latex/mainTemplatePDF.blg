@@ -1,0 +1,49 @@
+This is BibTeX, Version 0.99d (TeX Live 2017/Debian)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: mainTemplatePDF.aux
+The style file: abbrv.bst
+Database file #1: refs.bib
+Warning--empty journal in borovykhdilated
+Warning--empty year in borovykhdilated
+You've used 16 entries,
+            2118 wiz_defined-function locations,
+            595 strings with 6889 characters,
+and the built_in function-call counts, 5787 in all, are:
+= -- 549
+> -- 355
+< -- 1
++ -- 140
+- -- 124
+* -- 458
+:= -- 1010
+add.period$ -- 47
+call.type$ -- 16
+change.case$ -- 107
+chr.to.int$ -- 0
+cite$ -- 18
+duplicate$ -- 185
+empty$ -- 388
+format.name$ -- 124
+if$ -- 1145
+int.to.chr$ -- 0
+int.to.str$ -- 16
+missing$ -- 17
+newline$ -- 82
+num.names$ -- 32
+pop$ -- 99
+preamble$ -- 1
+purify$ -- 92
+quote$ -- 0
+skip$ -- 127
+stack$ -- 0
+substring$ -- 322
+swap$ -- 25
+text.length$ -- 1
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 62
+warning$ -- 2
+while$ -- 54
+width$ -- 18
+write$ -- 170
+(There were 2 warnings)

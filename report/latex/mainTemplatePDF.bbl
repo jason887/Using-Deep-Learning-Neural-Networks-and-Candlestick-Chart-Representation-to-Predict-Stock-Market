@@ -1,0 +1,92 @@
+\begin{thebibliography}{10}
+
+\bibitem{bollen2011twitter}
+J.~Bollen, H.~Mao, and X.~Zeng.
+\newblock Twitter mood predicts the stock market.
+\newblock {\em Journal of computational science}, 2(1):1--8, 2011.
+
+\bibitem{borovykhdilated}
+A.~Borovykh, S.~Bohte, and C.~W. Oosterlee.
+\newblock Dilated convolutional neural networks for time series forecasting.
+
+\bibitem{do2013effectiveness}
+H.~A. do~Prado, E.~Ferneda, L.~C. Morais, A.~J. Luiz, and E.~Matsura.
+\newblock On the effectiveness of candlestick chart analysis for the brazilian
+  stock market.
+\newblock {\em Procedia Computer Science}, 22:1136--1145, 2013.
+
+\bibitem{he2016deep}
+K.~He, X.~Zhang, S.~Ren, and J.~Sun.
+\newblock Deep residual learning for image recognition.
+\newblock In {\em Proceedings of the IEEE conference on computer vision and
+  pattern recognition}, pages 770--778, 2016.
+
+\bibitem{hu2017deep}
+G.~Hu, Y.~Hu, K.~Yang, Z.~Yu, F.~Sung, Z.~Zhang, F.~Xie, J.~Liu, N.~Robertson,
+  T.~Hospedales, et~al.
+\newblock Deep stock representation learning: From candlestick charts to
+  investment decisions.
+\newblock {\em arXiv preprint arXiv:1709.03803}, 2017.
+
+\bibitem{hunter2007matplotlib}
+J.~D. Hunter.
+\newblock Matplotlib: A 2d graphics environment.
+\newblock {\em Computing in science \& engineering}, 9(3):90--95, 2007.
+
+\bibitem{khaidem2016predicting}
+L.~Khaidem, S.~Saha, and S.~R. Dey.
+\newblock Predicting the direction of stock market prices using random forest.
+\newblock {\em arXiv preprint arXiv:1605.00003}, 2016.
+
+\bibitem{lu2012profitable}
+T.-H. Lu, Y.-M. Shiu, and T.-C. Liu.
+\newblock Profitable candlestick trading strategies—the evidence from a new
+  perspective.
+\newblock {\em Review of Financial Economics}, 21(2):63--68, 2012.
+
+\bibitem{malkiel1970efficient}
+B.~G. Malkiel and E.~F. Fama.
+\newblock Efficient capital markets: A review of theory and empirical work.
+\newblock {\em The journal of Finance}, 25(2):383--417, 1970.
+
+\bibitem{morris2006candlestick}
+G.~L. Morris.
+\newblock {\em Candlestick Charting Explained: Timeless Techniques for Trading
+  Stocks and Futures: Timeless Techniques for Trading stocks and Sutures}.
+\newblock McGraw Hill Professional, 2006.
+
+\bibitem{patel2015predicting}
+J.~Patel, S.~Shah, P.~Thakkar, and K.~Kotecha.
+\newblock Predicting stock and stock price index movement using trend
+  deterministic data preparation and machine learning techniques.
+\newblock {\em Expert Systems with Applications}, 42(1):259--268, 2015.
+
+\bibitem{pedregosa2011scikit}
+F.~Pedregosa, G.~Varoquaux, A.~Gramfort, V.~Michel, B.~Thirion, O.~Grisel,
+  M.~Blondel, P.~Prettenhofer, R.~Weiss, V.~Dubourg, et~al.
+\newblock Scikit-learn: Machine learning in python.
+\newblock {\em Journal of machine learning research}, 12(Oct):2825--2830, 2011.
+
+\bibitem{schoneburg1990stock}
+E.~Sch{\"o}neburg.
+\newblock Stock price prediction using neural networks: A project report.
+\newblock {\em Neurocomputing}, 2(1):17--27, 1990.
+
+\bibitem{simonyan2014very}
+K.~Simonyan and A.~Zisserman.
+\newblock Very deep convolutional networks for large-scale image recognition.
+\newblock {\em arXiv preprint arXiv:1409.1556}, 2014.
+
+\bibitem{tsai2014stock}
+C.-F. Tsai and Z.-Y. Quan.
+\newblock Stock prediction by searching for similarities in candlestick charts.
+\newblock {\em ACM Transactions on Management Information Systems (TMIS)},
+  5(2):9, 2014.
+
+\bibitem{zhang2018improving}
+X.~Zhang, Y.~Zhang, S.~Wang, Y.~Yao, B.~Fang, and S.~Y. Philip.
+\newblock Improving stock market prediction via heterogeneous information
+  fusion.
+\newblock {\em Knowledge-Based Systems}, 143:236--247, 2018.
+
+\end{thebibliography}
