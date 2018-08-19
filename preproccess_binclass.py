@@ -223,7 +223,7 @@ def ohlc2cs(fname, seq_len, dataset_type, dimension):
         #     plt.close(fig)
 
         # ohlc+volume
-        useVolume = False
+        useVolume = True
         if len(c) == int(seq_len):
             my_dpi = 96
             fig = plt.figure(figsize=(dimension / my_dpi,

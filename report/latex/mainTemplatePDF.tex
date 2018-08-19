@@ -10,6 +10,12 @@
 \usepackage{authblk}
 \usepackage{amsmath}
 \usepackage[width=.40\textwidth]{caption}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
 
 \begin{document}
 
@@ -18,12 +24,13 @@
 
 
 \author[1]{Rosdyana Mangir Irawan Kusuma}
-\author[2]{Wei-Chun Kao}
-\author[3]{Trang-Thi Ho}
+\author[2]{Trang-Thi Ho}
+\author[3]{Wei-Chun Kao}
 \author[1]{Yu-Yen Ou}
+\author[2]{Kai-Lung Hua}
 \affil[1]{Department of Computer Science and Engineering, Yuan Ze University, Taoyuan, Taiwan Roc}
-\affil[2]{Omniscient Cloud Technology}
-\affil[3]{Department of Computer Science and Engineering, National Taiwan University of Science and Technology, Taipei, Taiwan Roc}
+\affil[3]{Omniscient Cloud Technology}
+\affil[2]{Department of Computer Science and Engineering, National Taiwan University of Science and Technology, Taipei, Taiwan Roc}
 \renewcommand\Authands{ and }
 
 \maketitle
@@ -31,7 +38,7 @@
 \thispagestyle{empty}
 
 \begin{abstract}
-Stock market prediction is still a challenging problem because there are many factors effect to the stock market price such as company news and performance, industry performance, investor sentiment, social media sentiment and economic factors. This work explores the predictability in the stock market using Deep Convolutional Network and candlestick charts. The outcome is utilized to design a decision support framework that can be used by traders to provide suggested indications of future stock price direction. We perform this work using various types of neural networks like convolutional neural network, residual network and visual geometry group network. From stock market historical data, we converted it to candlestick charts. After that, these candlestick charts will be feed as input for training a Convolution neural network model. This Convolution neural network model will help us to analyze the patterns inside the candlestick chart and predict the future movements of stock market. Using Taiwan 50 and Indonesian 10 stock market historical time series data we can achieve a promising results- 92.2 \% and 92.1 \% accuracy for Taiwan and Indonesia stock market respectively. Our performance results significantly outperform the existing methods.
+Stock market prediction is still a challenging problem because there are many factors effect to the stock market price such as company news and performance, industry performance, investor sentiment, social media sentiment and economic factors. This work explores the predictability in the stock market using Deep Convolutional Network and candlestick charts. The outcome is utilized to design a decision support framework that can be used by traders to provide suggested indications of future stock price direction. We perform this work using various types of neural networks like convolutional neural network, residual network and visual geometry group network. From stock market historical data, we converted it to candlestick charts. Finally, these candlestick charts will be feed as input for training a Convolutional Neural Network model. This Convolutional Neural Network model will help us to analyze the patterns inside the candlestick chart and predict the future movements of stock market. The effectiveness of our method is evaluated in stock market prediction with a promising results 92.2 \% and 92.1 \% accuracy for Taiwan and Indonesian stock market dataset respectively. The constructed model have been implemented as a web-based system freely available at \url{http://140.138.155.216/deepcandle/} for predicting stock market using candlestick chart and deep learning neural networks.
 \end{abstract}
 
 

@@ -196,16 +196,25 @@ def main():
     bn_axis = 3 if K.image_dim_ordering() == 'tf' else 1
 
     data_directory = args.input
-    period_name = data_directory.split('/')
 
-    print("loading dataset")
-    X_train, Y_train, nb_classes = build_dataset(
-        "{}/train".format(data_directory), args.dimension)
-    X_test, Y_test, nb_classes = build_dataset(
-        "{}/test".format(data_directory), args.dimension)
-    print("number of classes : {}".format(nb_classes))
+    only_plot = True
+    if not only_plot:
+        print("loading dataset")
+        X_train, Y_train, nb_classes = build_dataset(
+            "{}/train".format(data_directory), args.dimension)
+        X_test, Y_test, nb_classes = build_dataset(
+            "{}/test".format(data_directory), args.dimension)
+        print("number of classes : {}".format(nb_classes))
 
-    model = build_model(SHAPE, nb_classes, bn_axis)
+        model = build_model(SHAPE, nb_classes, bn_axis)
+
+    if only_plot:
+        model = build_model(SHAPE, 2, bn_axis)
+        print(model.summary())
+        from keras.utils.vis_utils import plot_model
+        plot_model(model, to_file='{}epochs_{}batch_resnet50_model_{}.png'.format(
+            epochs, batch_size, data_directory.replace("/", "_")), show_shapes=True, show_layer_names=True)
+        sys.exit()
 
     model.compile(optimizer=Adam(lr=1.0e-4),
                   loss='categorical_crossentropy', metrics=['accuracy'])
