@@ -41,7 +41,7 @@ def main():
     parser.add_argument('-d', '--dimension',
                         help='a image dimension', type=int, default=50)
     parser.add_argument('-o', '--output',
-                        help='a result file', type=str, default="hasilnya.txt")
+                        help='a result file', type=str, default="output_result_rf.txt")
     args = parser.parse_args()
 
     data_directory = args.input

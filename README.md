@@ -1,33 +1,30 @@
 # Stock-Market-Predcition-using-ResNet
 
-## Prepare data
-To download data, we provide 2 source, yahoo and tiingo
+## 1. Prepare Environment
+run init.sh to create a virtual python environment and install the dependencies
 
-```shell-script
-$ python get_data.py -t SPY -s yahoo
 ```
-```shell-script
-$ python get_data.py -t SPY -s tiingo
+$ bash init.sh
 ```
-## Preprocessing Data
-We provide ready dataset for run this prediction, but if you want to build your own data, please follow this steps.
+if you don't want use virtual environment, you can install requirement libraries with :
+```
+$ pip install -r requirements.txt
+```
+Highly recomended using virtual environment.
 
-### Convert O-H-L-C-V stock data into candle stick plot
-```shell-script
-$ python preprocess.py -m ohlc2cs -l 20 -i stockdatas/ETF_testing.csv -t testing
-```
+## 2. Prepare dataset
+To download data, we provide 2 source, yahoo and tiingo (yahoo by default). We can read a list of stock market and run it. Example, we want to download and preprocess all stock market in tw50.csv with 20 period days and produce 50x50 image dimension.
 
-### Create label from stock price data
-```shell-script
-python preprocess.py -m createLabel -i stockdatas/^FTSE.csv -l 5
 ```
-
-### Build dataset folder separated each classes
-```shell-script
-python preprocess.py -m img2dt -i dataset/classes/ -lf ETF_testing_label_5.txt
+$ python runallfromlist.py tw50.csv 20 50
+```
+Generate the final dataset. Example, we want to generate a final dataset from tw50 with 20 period days and 50 dimension.
+```
+$ python generatebigdata.py dataset 20_50 bigdata_20_50
 ```
 
-### Build the model
-```shell-script
-python resnet18.py -i dataset/10/img/classes -d 200 -c 3 -e 5 -b 16 -o adam
+## 3. Build the model
+We can run build model with default parameter.
+```
+$ python myDeepCNN.py -i dataset/bigdata_20_50
 ```

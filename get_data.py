@@ -51,7 +51,7 @@ def main():
     # make sure output folder is exist
     if not os.path.isdir("stockdatas"):
         os.mkdir("stockdatas")
-    if len(args.prefix) > 1:
+    if args.prefix:
         prefix_name = args.prefix
     if args.source == "tiingo":
         for ticker in set(args.ticker):

@@ -43,16 +43,6 @@ def build_dataset(data_directory, img_width):
 
 
 def identity_block(input_tensor, kernel_size, filters, stage, block):
-    """The identity block is the block that has no conv layer at shortcut.
-    # Arguments
-        input_tensor: input tensor
-        kernel_size: default 3, the kernel size of middle conv layer at main path
-        filters: list of integers, the filters of 3 conv layer at main path
-        stage: integer, current stage label, used for generating layer names
-        block: 'a','b'..., current block label, used for generating layer names
-    # Returns
-        Output tensor for the block.
-    """
     filters1, filters2, filters3 = filters
     if K.image_data_format() == 'channels_last':
         bn_axis = 3
@@ -79,20 +69,6 @@ def identity_block(input_tensor, kernel_size, filters, stage, block):
 
 
 def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2)):
-    """A block that has a conv layer at shortcut.
-    # Arguments
-        input_tensor: input tensor
-        kernel_size: default 3, the kernel size of middle conv layer at main path
-        filters: list of integers, the filters of 3 conv layer at main path
-        stage: integer, current stage label, used for generating layer names
-        block: 'a','b'..., current block label, used for generating layer names
-        strides: Strides for the first conv layer in the block.
-    # Returns
-        Output tensor for the block.
-    Note that from stage 3,
-    the first conv layer at main path is with strides=(2, 2)
-    And the shortcut should have strides=(2, 2) as well
-    """
     filters1, filters2, filters3 = filters
     if K.image_data_format() == 'channels_last':
         bn_axis = 3
@@ -185,7 +161,7 @@ def main():
     # parser.add_argument('-o', '--optimizer',
     #                     help='choose the optimizer (rmsprop, adagrad, adadelta, adam, adamax, nadam)', default="adam")
     parser.add_argument('-o', '--output',
-                        help='a result file', type=str, default="hasilnya.txt")
+                        help='a result file', type=str, default="output_result_resnet50.txt")
     args = parser.parse_args()
     # dimensions of our images.
     img_width, img_height = args.dimension, args.dimension
