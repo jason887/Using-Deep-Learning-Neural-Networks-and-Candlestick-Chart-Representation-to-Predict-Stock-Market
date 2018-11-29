@@ -43,8 +43,6 @@ def build_dataset(data_directory, img_width):
 
 
 def build_model(SHAPE, nb_classes, bn_axis, seed=None):
-    # We can't use ResNet50 directly, as it might cause a negative dimension
-    # error.
     if seed:
         np.random.seed(seed)
 
@@ -99,7 +97,7 @@ def main():
     parser.add_argument('-i', '--input',
                         help='an input directory of dataset', required=True)
     parser.add_argument('-d', '--dimension',
-                        help='a image dimension', type=int, default=48)
+                        help='a image dimension', type=int, default=50)
     parser.add_argument('-c', '--channel',
                         help='a image channel', type=int, default=3)
     parser.add_argument('-e', '--epochs',
@@ -109,7 +107,7 @@ def main():
     # parser.add_argument('-o', '--optimizer',
     #                     help='choose the optimizer (rmsprop, adagrad, adadelta, adam, adamax, nadam)', default="adam")
     parser.add_argument('-o', '--output',
-                        help='a result file', type=str, default="hasilnya.txt")
+                        help='a result file', type=str, default="output_result_cnn.txt")
     args = parser.parse_args()
     # dimensions of our images.
     img_width, img_height = args.dimension, args.dimension

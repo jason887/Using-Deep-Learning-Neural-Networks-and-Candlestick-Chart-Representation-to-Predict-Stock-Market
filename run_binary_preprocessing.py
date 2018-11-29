@@ -7,16 +7,26 @@ formatters = {
     'GREEN': '\033[92m',
     'END': '\033[0m',
 }
-
+# stock market symbol
 symbol = sys.argv[1]
+
+# set the time
 testing_start_date = "2017-01-01"
 testing_end_date = "2018-06-14"
 training_end_date = "2016-12-31"
 training_start_date = "2000-01-01"
+
+# how long the windows set
 windows_length = sys.argv[2]
+
+# image size dimension
 dimension = sys.argv[3]
+
+# turn off if you have offline data
 download_data = True
-onlytesting = False
+
+# training - testing flag data generation
+onlytesting = True
 onlytraining = True
 
 try:
@@ -93,4 +103,3 @@ except Exception as identifier:
 
 # find . -name "*.png" -exec convert "{}" -alpha off "{}" \;
 # find . -name "*.png" -exec convert "{}" -adaptive-resize 20x20! "{}" \;
-# os.system('spd-say --voice-type female3 "your program has finished"')

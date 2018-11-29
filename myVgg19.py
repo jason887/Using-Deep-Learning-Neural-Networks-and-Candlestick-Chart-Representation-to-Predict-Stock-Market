@@ -155,7 +155,7 @@ def main():
     # parser.add_argument('-o', '--optimizer',
     #                     help='choose the optimizer (rmsprop, adagrad, adadelta, adam, adamax, nadam)', default="adam")
     parser.add_argument('-o', '--output',
-                        help='a result file', type=str, default="hasilnya.txt")
+                        help='a result file', type=str, default="output_result_vgg19.txt")
     args = parser.parse_args()
     # dimensions of our images.
     img_width, img_height = args.dimension, args.dimension
